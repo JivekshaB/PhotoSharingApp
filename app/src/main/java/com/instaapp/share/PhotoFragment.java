@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
+import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.profile.AccountSettingsActivity;
 
@@ -33,7 +32,7 @@ import java.util.Locale;
  * Created by User on 5/28/2017.
  */
 
-public class PhotoFragment extends Fragment {
+public class PhotoFragment extends BaseFragment {
     private static final String TAG = "PhotoFragment";
 
     //constant
@@ -84,8 +83,8 @@ public class PhotoFragment extends Fragment {
             });
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        getActivityComponent().getActivity().setSupportActionBar(toolbar);
+        ActionBar actionBar = getActivityComponent().getActivity().getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
         }
@@ -136,11 +135,7 @@ public class PhotoFragment extends Fragment {
 
 
     private boolean isRootTask() {
-        if (((ShareActivity) getActivity()).getTask() == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return ((ShareActivity) getActivityComponent().getActivity()).getTask() == 0;
     }
 
     private CameraView.Callback mCallback
@@ -162,7 +157,7 @@ public class PhotoFragment extends Fragment {
 
             Log.d(TAG, "onActivityResult: done taking a photo.");
             Log.d(TAG, "onActivityResult: attempting to navigate to final share screen.");
-            File destination = null;
+            File destination;
             try {
 
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
@@ -181,35 +176,31 @@ public class PhotoFragment extends Fragment {
                         cameraView.stop();
                     try {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
-                        Intent intent = new Intent(getActivity(), NextActivity.class);
+                        Intent intent = new Intent(getApplicationComponent().getContext(), NextActivity.class);
                         intent.putExtra(getString(R.string.selected_bitmap), destination.getAbsolutePath());
-                        getActivity().startActivity(intent);
+                        getActivityComponent().getActivity().startActivity(intent);
                     } catch (NullPointerException e) {
                         Log.d(TAG, "onActivityResult: NullPointerException: " + e.getMessage());
                     }
                 } else {
                     try {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
-                        Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
+                        Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
                         intent.putExtra(getString(R.string.selected_bitmap), destination.getAbsolutePath());
                         intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
                         startActivity(intent);
-                        getActivity().finish();
                     } catch (NullPointerException e) {
                         Log.d(TAG, "onActivityResult: NullPointerException: " + e.getMessage());
                     }
                 }
 
-                getActivity().finish();
+                getActivityComponent().getActivity().finish();
 
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, "onPictureTaken: while creation error...");
                 Toast.makeText(getContext(), "Unable to take picture. Please try again later", Toast.LENGTH_LONG).show();
             }
-
-            //bitmap = (Bitmap) ImageManager.getBitmap(data);
-
         }
 
     };

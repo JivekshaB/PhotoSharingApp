@@ -1,14 +1,12 @@
 package com.instaapp.di.component;
 
+import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
+
+import com.instaapp.BaseActivity;
+import com.instaapp.di.annotation.ActivityContext;
 import com.instaapp.di.annotation.PerActivity;
 import com.instaapp.di.module.ActivityModule;
-import com.instaapp.home.HomeActivity;
-import com.instaapp.login.LoginActivity;
-import com.instaapp.login.RegisterActivity;
-import com.instaapp.profile.AccountSettingsActivity;
-import com.instaapp.profile.ProfileActivity;
-import com.instaapp.search.SearchActivity;
-import com.instaapp.share.ShareActivity;
 
 import dagger.Component;
 
@@ -20,17 +18,12 @@ import dagger.Component;
 @Component(dependencies = ApplicationComponent.class, modules = ActivityModule.class)
 public interface ActivityComponent {
 
-    void inject(HomeActivity homeActivity);
+    void inject(BaseActivity baseActivity);
 
-    void inject(SearchActivity searchActivity);
+    @ActivityContext
+    Context getContext();
 
-    void inject(ProfileActivity profileActivity);
+    AppCompatActivity getActivity();
 
-    void inject(AccountSettingsActivity accountSettingsActivity);
 
-    void inject(LoginActivity loginActivity);
-
-    void inject(RegisterActivity registerActivity);
-
-    void inject(ShareActivity shareActivity);
 }

@@ -11,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.instaapp.BaseActivity;
 import com.instaapp.R;
 import com.instaapp.adapter.SectionsPagerAdapter;
 import com.instaapp.utils.Permissions;
@@ -19,16 +20,13 @@ import com.instaapp.utils.Permissions;
  * Created by jiveksha on 8/7/18.
  */
 
-public class ShareActivity extends AppCompatActivity {
+public class ShareActivity extends BaseActivity {
     private static final String TAG = "ShareActivity";
 
     //constants
     private static final int VERIFY_PERMISSIONS_REQUEST = 1;
 
     private ViewPager mViewPager;
-
-
-    private Context mContext = ShareActivity.this;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

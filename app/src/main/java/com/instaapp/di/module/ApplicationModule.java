@@ -5,7 +5,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.instaapp.di.annotation.ApplicationContext;
+import com.instaapp.utils.FirebaseMethods;
 import com.instaapp.utils.UniversalImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -24,6 +26,10 @@ public class ApplicationModule {
     private FirebaseAuth mFirebaseAuth;
 
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+
+    private FirebaseMethods mFirebaseMethods;
+
+    private FirebaseDatabase mFirebaseDatabase;
 
     private UniversalImageLoader mImageLoader;
 
@@ -59,7 +65,7 @@ public class ApplicationModule {
      * @return {@link FirebaseAuth}
      */
     @Provides
-    FirebaseAuth providesFriebaseAuth() {
+    FirebaseAuth providesFirebaseAuth() {
         mFirebaseAuth = FirebaseAuth.getInstance();
         return mFirebaseAuth;
     }
@@ -90,6 +96,29 @@ public class ApplicationModule {
         mImageLoader = new UniversalImageLoader(provideContext());
         ImageLoader.getInstance().init(mImageLoader.getConfig());
         return mImageLoader;
+    }
+
+    /**
+     * Provides FirebaseMethods class for firebase related calls
+     *
+     * @return {@link FirebaseMethods}
+     */
+    @Provides
+    FirebaseMethods providesFirebaseMethods() {
+        mFirebaseMethods = new FirebaseMethods(provideContext());
+        return mFirebaseMethods;
+    }
+
+
+    /**
+     * Provides firebase database
+     *
+     * @return {@link com.google.firebase.database.FirebaseDatabase}
+     */
+    @Provides
+    FirebaseDatabase providesFirebaseDatabase() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        return mFirebaseDatabase;
     }
 
 }

@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.instaapp.BaseActivity;
 import com.instaapp.R;
 import com.instaapp.utils.FirebaseMethods;
 import com.instaapp.utils.UniversalImageLoader;
@@ -29,7 +30,7 @@ import com.instaapp.utils.UniversalImageLoader;
  * Created by User on 7/24/2017.
  */
 
-public class NextActivity extends AppCompatActivity {
+public class NextActivity extends BaseActivity {
 
     private static final String TAG = "NextActivity";
 

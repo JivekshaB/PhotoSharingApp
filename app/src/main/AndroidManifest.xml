@@ -71,26 +71,12 @@
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".opengl.OpenGLES10Activity"
-            android:launchMode="singleInstance"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".opengl.NewStoryActivity"
-            android:launchMode="singleInstance"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".search.SearchActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing">
 
         </activity>
-        <activity
-            android:name=".materialcamera.CaptureActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".materialcamera.CaptureActivity2"
-            android:screenOrientation="portrait" />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="6979b9653179490a3e2bd71d679be5ec1de34fa4" />

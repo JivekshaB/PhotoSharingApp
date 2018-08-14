@@ -6,13 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.instaapp.BaseActivity;
 import com.instaapp.R;
 import com.instaapp.models.Photo;
 import com.instaapp.models.User;
@@ -21,15 +20,12 @@ import com.instaapp.models.User;
  * Created by User on 5/28/2017.
  */
 
-public class ProfileActivity extends AppCompatActivity implements
-        FragmentManager.OnBackStackChangedListener,
+public class ProfileActivity extends BaseActivity implements
         ProfileFragment.OnGridImageSelectedListener,
         ViewPostFragment.OnCommentThreadSelectedListener,
         ViewProfileFragment.OnGridImageSelectedListener {
 
-    private static final String TAG = "ProfileActivity";
-
-    private Context mContext = ProfileActivity.this;
+    private static final String TAG = ProfileActivity.class.getSimpleName();
 
 
     @Override
@@ -90,7 +86,7 @@ public class ProfileActivity extends AppCompatActivity implements
     private void init() {
         Log.d(TAG, "init: inflating " + getString(R.string.profile_fragment));
 
-      Intent intent = getIntent();
+        Intent intent = getIntent();
         if (intent.hasExtra(getString(R.string.calling_activity))) {
             Log.d(TAG, "init: searching for user object attached as intent extra");
             if (intent.hasExtra(getString(R.string.intent_user))) {
@@ -103,18 +99,16 @@ public class ProfileActivity extends AppCompatActivity implements
                     fragment.setArguments(args);
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.container, fragment);
-                    //transaction.addToBackStack(getString(R.string.view_profile_fragment));
                     transaction.commit();
                 } else {
                     Log.d(TAG, "init: inflating Profile");
                     ProfileFragment fragment = new ProfileFragment();
                     FragmentTransaction transaction = ProfileActivity.this.getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.container, fragment);
-                   // transaction.addToBackStack(getString(R.string.profile_fragment));
                     transaction.commit();
                 }
             } else {
-                Toast.makeText(mContext, "something went wrong", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivityContext(), "something went wrong", Toast.LENGTH_SHORT).show();
             }
 
         } else {
@@ -122,14 +116,10 @@ public class ProfileActivity extends AppCompatActivity implements
             ProfileFragment fragment = new ProfileFragment();
             FragmentTransaction transaction = ProfileActivity.this.getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.container, fragment);
-            //transaction.addToBackStack(getString(R.string.profile_fragment));
             transaction.commit();
         }
 
     }
 
-    @Override
-    public void onBackStackChanged() {
 
-    }
 }

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.adapter.GridImageAdapter;
 import com.instaapp.profile.AccountSettingsActivity;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
  * Created by User on 5/28/2017.
  */
 
-public class GalleryFragment extends Fragment {
+public class GalleryFragment extends BaseFragment {
     private static final String TAG = "GalleryFragment";
 
 
@@ -65,54 +65,48 @@ public class GalleryFragment extends Fragment {
         directories = new ArrayList<>();
         Log.d(TAG, "onCreateView: started.");
 
-        ImageView shareClose = (ImageView) view.findViewById(R.id.ivCloseShare);
+        ImageView shareClose = view.findViewById(R.id.ivCloseShare);
         shareClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: closing the gallery fragment.");
-                getActivity().finish();
+                getActivityComponent().getActivity().finish();
             }
         });
 
 
-        TextView nextScreen = (TextView) view.findViewById(R.id.tvNext);
+        TextView nextScreen = view.findViewById(R.id.tvNext);
         nextScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating to the final share screen.");
 
                 if (isRootTask()) {
-                    Intent intent = new Intent(getActivity(), NextActivity.class);
+                    Intent intent = new Intent(getApplicationComponent().getContext(), NextActivity.class);
                     intent.putExtra(getString(R.string.selected_image), mSelectedImage);
                     startActivity(intent);
                 } else {
-                    Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
+                    Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
                     intent.putExtra(getString(R.string.selected_image), mSelectedImage);
                     intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
                     startActivity(intent);
-                    getActivity().finish();
                 }
-             getActivity().finish();
+                getActivityComponent().getActivity().finish();
             }
         });
 
         init();
-
         return view;
     }
 
     private boolean isRootTask() {
-        if (((ShareActivity) getActivity()).getTask() == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return ((ShareActivity) getActivityComponent().getActivity()).getTask() == 0;
     }
 
     private void init() {
         FilePaths filePaths = new FilePaths();
 
-        //check for other folders indide "/storage/emulated/0/pictures"
+        //check for other folders inside "/storage/emulated/0/pictures"
         if (FileSearch.getDirectoryPaths(filePaths.PICTURES) != null) {
             directories = FileSearch.getDirectoryPaths(filePaths.PICTURES);
         }
@@ -126,7 +120,7 @@ public class GalleryFragment extends Fragment {
             directoryNames.add(string);
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getFragmentContext(),
                 android.R.layout.simple_spinner_item, directoryNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         directorySpinner.setAdapter(adapter);
@@ -158,7 +152,7 @@ public class GalleryFragment extends Fragment {
         gridView.setColumnWidth(imageWidth);
 
         //use the grid adapter to adapter the images to gridview
-        GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview, mAppend, imgURLs);
+        GridImageAdapter adapter = new GridImageAdapter(getFragmentContext(), R.layout.layout_grid_imageview, mAppend, imgURLs);
         gridView.setAdapter(adapter);
 
         //set the first image to be displayed when the activity fragment view is inflated
