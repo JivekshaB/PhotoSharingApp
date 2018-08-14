@@ -186,7 +186,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
                             Log.d(TAG, "onClick: navigating to profile of: " +
                                     holder.user.getUsername());
 
-                            Intent intent = new Intent(mContext, ProfileActivity.class);
+                            Intent intent = new Intent(getContext(), ProfileActivity.class);
                             intent.putExtra(mContext.getString(R.string.calling_activity),
                                     mContext.getString(R.string.home_activity));
                             intent.putExtra(mContext.getString(R.string.intent_user), holder.user);
@@ -202,7 +202,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
                             Log.d(TAG, "onClick: navigating to profile of: " +
                                     holder.user.getUsername());
 
-                            Intent intent = new Intent(mContext, ProfileActivity.class);
+                            Intent intent = new Intent(getContext(), ProfileActivity.class);
                             intent.putExtra(mContext.getString(R.string.calling_activity), mContext.getString(R.string.home_activity));
                             intent.putExtra(mContext.getString(R.string.intent_user), holder.user);
                             mContext.startActivity(intent);
