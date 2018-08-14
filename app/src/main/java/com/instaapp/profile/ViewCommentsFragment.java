@@ -26,10 +26,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.instaapp.R;
+import com.instaapp.adapter.CommentListAdapter;
 import com.instaapp.home.HomeActivity;
 import com.instaapp.models.Comment;
 import com.instaapp.models.Photo;
-import com.instaapp.utils.CommentListAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

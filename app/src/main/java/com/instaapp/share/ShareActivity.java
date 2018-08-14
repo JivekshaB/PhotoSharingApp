@@ -12,8 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.instaapp.R;
+import com.instaapp.adapter.SectionsPagerAdapter;
 import com.instaapp.utils.Permissions;
-import com.instaapp.utils.SectionsPagerAdapter;
 
 /**
  * Created by jiveksha on 8/7/18.

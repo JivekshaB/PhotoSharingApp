@@ -177,6 +177,8 @@ public class PhotoFragment extends Fragment {
                 fo.close();
 
                 if (isRootTask()) {
+                    if (null != cameraView)
+                        cameraView.stop();
                     try {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
                         Intent intent = new Intent(getActivity(), NextActivity.class);
@@ -197,6 +199,8 @@ public class PhotoFragment extends Fragment {
                         Log.d(TAG, "onActivityResult: NullPointerException: " + e.getMessage());
                     }
                 }
+
+                getActivity().finish();
 
             } catch (Exception e) {
                 e.printStackTrace();

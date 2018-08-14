@@ -18,10 +18,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.instaapp.R;
+import com.instaapp.adapter.GridImageAdapter;
 import com.instaapp.profile.AccountSettingsActivity;
 import com.instaapp.utils.FilePaths;
 import com.instaapp.utils.FileSearch;
-import com.instaapp.utils.GridImageAdapter;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
@@ -92,7 +92,7 @@ public class GalleryFragment extends Fragment {
                     startActivity(intent);
                     getActivity().finish();
                 }
-
+             getActivity().finish();
             }
         });
 

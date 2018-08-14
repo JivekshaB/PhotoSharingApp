@@ -17,9 +17,9 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.instaapp.R;
+import com.instaapp.adapter.SectionsStatePagerAdapter;
 import com.instaapp.utils.BottomNavigationViewHelper;
 import com.instaapp.utils.FirebaseMethods;
-import com.instaapp.utils.SectionsStatePagerAdapter;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;

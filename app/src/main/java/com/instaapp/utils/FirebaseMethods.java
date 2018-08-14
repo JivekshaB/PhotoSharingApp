@@ -494,8 +494,9 @@ public class FirebaseMethods {
                 bm = ImageManager.getBitmap(imgUrl);
             }
 
+            Bitmap rotatedBitmap = getRotatedBitmap(imgUrl, bm);
 
-            byte[] bytes = ImageManager.getBytesFromBitmap(bm, 100);
+            byte[] bytes = ImageManager.getBytesFromBitmap(rotatedBitmap, 100);
 
             UploadTask uploadTask = null;
             uploadTask = storageReference.putBytes(bytes);

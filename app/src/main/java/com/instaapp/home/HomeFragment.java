@@ -20,10 +20,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.instaapp.R;
+import com.instaapp.adapter.MainFeedListAdapter;
 import com.instaapp.models.Comment;
 import com.instaapp.models.Photo;
 import com.instaapp.models.UserAccountSettings;
-import com.instaapp.utils.MainFeedListAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;

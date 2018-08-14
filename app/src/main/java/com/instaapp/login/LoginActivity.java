@@ -53,6 +53,10 @@ public class LoginActivity extends AppCompatActivity {
         mContext = LoginActivity.this;
         Log.d(TAG, "onCreate: started LoginActivity...");
 
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction("com.package.ACTION_LOGOUT");
+        sendBroadcast(broadcastIntent);
+
         mPleaseWait.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
 
@@ -116,6 +120,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 Log.d(TAG, "onComplete: success. email is verified.");
                                                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                                 startActivity(intent);
+                                                finish();
                                             } else {
                                                 Toast.makeText(mContext, "Email is not verified \n check your email inbox.", Toast.LENGTH_SHORT).show();
                                                 mProgressBar.setVisibility(View.GONE);

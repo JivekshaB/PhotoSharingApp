@@ -32,8 +32,7 @@ import com.instaapp.models.Photo;
 import com.instaapp.models.User;
 import com.instaapp.models.UserAccountSettings;
 import com.instaapp.utils.BottomNavigationViewHelper;
-import com.instaapp.utils.FirebaseMethods;
-import com.instaapp.utils.Heart;
+import com.instaapp.utils.LikeToggle;
 import com.instaapp.utils.SquareImageView;
 import com.instaapp.utils.UniversalImageLoader;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
@@ -74,7 +73,6 @@ public class ViewPostFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
-    private FirebaseMethods mFirebaseMethods;
 
 
     //widgets
@@ -91,7 +89,7 @@ public class ViewPostFragment extends Fragment {
     private String profilePhotoUrl = "";
     private UserAccountSettings mUserAccountSettings;
     private GestureDetector mGestureDetector;
-    private Heart mHeart;
+    private LikeToggle mHeart;
     private Boolean mLikedByCurrentUser;
     private StringBuilder mUsers;
     private String mLikesString = "";
@@ -116,7 +114,7 @@ public class ViewPostFragment extends Fragment {
         mComment = (ImageView) view.findViewById(R.id.speech_bubble);
         mComments = (TextView) view.findViewById(R.id.image_comments_link);
 
-        mHeart = new Heart(mHeartWhite, mHeartRed);
+        mHeart = new LikeToggle(mHeartWhite, mHeartRed);
         mGestureDetector = new GestureDetector(getActivity(), new GestureListener());
 
         setupFirebaseAuth();
@@ -166,7 +164,7 @@ public class ViewPostFragment extends Fragment {
 
                         getCurrentUser();
                         getPhotoDetails();
-                        //getLikesString();
+                        getLikesString();
 
                     }
 

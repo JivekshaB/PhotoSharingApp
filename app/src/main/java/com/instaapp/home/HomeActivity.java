@@ -1,7 +1,9 @@
 package com.instaapp.home;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -18,14 +20,11 @@ import android.widget.RelativeLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.instaapp.R;
+import com.instaapp.adapter.MainFeedListAdapter;
 import com.instaapp.login.LoginActivity;
 import com.instaapp.models.Photo;
-import com.instaapp.opengl.AddToStoryDialog;
-import com.instaapp.opengl.NewStoryActivity;
 import com.instaapp.profile.ViewCommentsFragment;
-import com.instaapp.share.PhotoFragment;
 import com.instaapp.utils.BottomNavigationViewHelper;
-import com.instaapp.utils.MainFeedListAdapter;
 import com.instaapp.utils.UniversalImageLoader;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -66,32 +65,27 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.package.ACTION_LOGOUT");
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "onReceive: Logout in progress");
+                //At this point you should start the login activity and finish this one
+                finish();
+            }
+        }, intentFilter);
         setContentView(R.layout.activity_home);
         Log.d(TAG, "onCreate: starting.");
         mViewPager = (ViewPager) findViewById(R.id.viewpager_container);
         mFrameLayout = (FrameLayout) findViewById(R.id.container);
         mRelativeLayout = (RelativeLayout) findViewById(R.id.relLayoutParent);
-
         setupFirebaseAuth();
-
         initImageLoader();
         setupBottomNavigationView();
         setupViewPager();
 
     }
-
-
-    public void openNewStoryActivity() {
-        Intent intent = new Intent(this, NewStoryActivity.class);
-        startActivityForResult(intent, REQUEST_ADD_NEW_STORY);
-    }
-
-    public void showAddToStoryDialog() {
-        Log.d(TAG, "showAddToStoryDialog: showing add to story dialog.");
-        AddToStoryDialog dialog = new AddToStoryDialog();
-        dialog.show(getFragmentManager(), getString(R.string.dialog_add_to_story));
-    }
-
 
     public void onCommentThreadSelected(Photo photo, String callingActivity) {
         Log.d(TAG, "onCommentThreadSelected: selected a coemment thread");
@@ -148,7 +142,7 @@ public class HomeActivity extends AppCompatActivity implements
      */
     private void setupViewPager() {
         SectionsPagerAdapter adapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new PhotoFragment()); //index 0
+        //  adapter.addFragment(new PhotoFragment()); //index 0
         adapter.addFragment(new HomeFragment()); //index 1
         // adapter.addFragment(new MessagesFragment()); //index 2
         mViewPager.setAdapter(adapter);
@@ -156,8 +150,8 @@ public class HomeActivity extends AppCompatActivity implements
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_camera);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_instagram_black);
+        //   tabLayout.getTabAt(0).setIcon(R.drawable.ic_camera);
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_instagram_black);
         // tabLayout.getTabAt(2).setIcon(R.drawable.ic_arrow);
     }
 

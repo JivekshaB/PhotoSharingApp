@@ -28,6 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.instaapp.R;
+import com.instaapp.adapter.GridImageAdapter;
 import com.instaapp.models.Comment;
 import com.instaapp.models.Like;
 import com.instaapp.models.Photo;
@@ -35,7 +36,6 @@ import com.instaapp.models.User;
 import com.instaapp.models.UserAccountSettings;
 import com.instaapp.models.UserSettings;
 import com.instaapp.utils.BottomNavigationViewHelper;
-import com.instaapp.utils.GridImageAdapter;
 import com.instaapp.utils.UniversalImageLoader;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
