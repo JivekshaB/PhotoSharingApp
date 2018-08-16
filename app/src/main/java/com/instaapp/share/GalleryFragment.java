@@ -150,7 +150,12 @@ public class GalleryFragment extends BaseFragment {
 
     private void setupGridView(String selectedDirectory) {
         Log.d(TAG, "setupGridView: directory chosen: " + selectedDirectory);
-        final ArrayList<String> imgURLs = FileSearch.getFilePaths(selectedDirectory);
+        final ArrayList<String> imgURLs;
+        if (selectedDirectory.contains("camera")) {
+            imgURLs = (ArrayList<String>) FileSearch.getCameraImages(getFragmentContext());
+        } else {
+            imgURLs = FileSearch.getFilePaths(selectedDirectory);
+        }
 
         Collections.sort(imgURLs, Collections.<String>reverseOrder());
         //set the grid column width
