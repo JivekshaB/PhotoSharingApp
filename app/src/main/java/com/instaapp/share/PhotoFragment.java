@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,8 +84,8 @@ public class PhotoFragment extends BaseFragment {
             });
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        getActivityComponent().getActivity().setSupportActionBar(toolbar);
-        ActionBar actionBar = getActivityComponent().getActivity().getSupportActionBar();
+        ((AppCompatActivity) getActivityComponent().getContext()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity) getActivityComponent().getContext()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
         }
@@ -135,7 +136,7 @@ public class PhotoFragment extends BaseFragment {
 
 
     private boolean isRootTask() {
-        return ((ShareActivity) getActivityComponent().getActivity()).getTask() == 0;
+        return ((ShareActivity) getActivityComponent().getContext()).getTask() == 0;
     }
 
     private CameraView.Callback mCallback
@@ -178,7 +179,7 @@ public class PhotoFragment extends BaseFragment {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
                         Intent intent = new Intent(getApplicationComponent().getContext(), NextActivity.class);
                         intent.putExtra(getString(R.string.selected_bitmap), destination.getAbsolutePath());
-                        getActivityComponent().getActivity().startActivity(intent);
+                        (getActivityComponent().getContext()).startActivity(intent);
                     } catch (NullPointerException e) {
                         Log.d(TAG, "onActivityResult: NullPointerException: " + e.getMessage());
                     }
@@ -194,7 +195,7 @@ public class PhotoFragment extends BaseFragment {
                     }
                 }
 
-                getActivityComponent().getActivity().finish();
+                ((AppCompatActivity)getActivityComponent().getContext()).finish();
 
             } catch (Exception e) {
                 e.printStackTrace();

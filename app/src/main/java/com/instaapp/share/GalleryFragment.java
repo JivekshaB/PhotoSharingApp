@@ -3,7 +3,9 @@ package com.instaapp.share;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,7 +72,7 @@ public class GalleryFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: closing the gallery fragment.");
-                getActivityComponent().getActivity().finish();
+                ((AppCompatActivity) getActivityComponent().getContext()).finish();
             }
         });
 
@@ -91,7 +93,7 @@ public class GalleryFragment extends BaseFragment {
                     intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
                     startActivity(intent);
                 }
-                getActivityComponent().getActivity().finish();
+                ((AppCompatActivity) getActivityComponent().getContext()).finish();
             }
         });
 
@@ -100,7 +102,7 @@ public class GalleryFragment extends BaseFragment {
     }
 
     private boolean isRootTask() {
-        return ((ShareActivity) getActivityComponent().getActivity()).getTask() == 0;
+        return ((ShareActivity) getActivityComponent().getContext()).getTask() == 0;
     }
 
     private void init() {
@@ -110,6 +112,8 @@ public class GalleryFragment extends BaseFragment {
         if (FileSearch.getDirectoryPaths(filePaths.PICTURES) != null) {
             directories = FileSearch.getDirectoryPaths(filePaths.PICTURES);
         }
+
+        directories.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath());
         directories.add(filePaths.CAMERA);
 
         ArrayList<String> directoryNames = new ArrayList<>();

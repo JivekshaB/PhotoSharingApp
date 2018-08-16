@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -113,7 +114,7 @@ public class ViewProfileFragment extends BaseFragment {
         } catch (NullPointerException e) {
             Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage());
             Toast.makeText(getFragmentContext(), "something went wrong", Toast.LENGTH_SHORT).show();
-            getActivityComponent().getActivity().getSupportFragmentManager().popBackStack();
+            ((AppCompatActivity)getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
         }
 
         setupBottomNavigationView();
@@ -416,7 +417,7 @@ public class ViewProfileFragment extends BaseFragment {
     @Override
     public void onAttach(Context context) {
         try {
-            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivityComponent().getActivity();
+            mOnGridImageSelectedListener = (OnGridImageSelectedListener) (getActivityComponent().getContext());
         } catch (ClassCastException e) {
             Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage());
         }
@@ -447,8 +448,8 @@ public class ViewProfileFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back");
-                getActivityComponent().getActivity().getSupportFragmentManager().popBackStack();
-                getActivityComponent().getActivity().finish();
+                ((AppCompatActivity)getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
+                ((AppCompatActivity)getActivityComponent().getContext()).finish();
             }
         });
 
@@ -461,7 +462,7 @@ public class ViewProfileFragment extends BaseFragment {
     private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), getActivityComponent().getActivity(), bottomNavigationView);
+        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), ((AppCompatActivity)getActivityComponent().getContext()), bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);

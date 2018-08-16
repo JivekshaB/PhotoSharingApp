@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,7 +86,7 @@ public class EditProfileFragment extends BaseFragment implements
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back to ProfileActivity");
-                getActivityComponent().getActivity().finish();
+                ((AppCompatActivity)getActivityComponent().getContext()).finish();
             }
         });
 
@@ -216,8 +217,8 @@ public class EditProfileFragment extends BaseFragment implements
                 Log.d(TAG, "onClick: changing profile photo");
                 Intent intent = new Intent(getApplicationComponent().getContext(), ShareActivity.class);
                 intent.putExtra(getString(R.string.gallery_fragment), false);
-                getActivityComponent().getActivity().startActivity(intent);
-                getActivityComponent().getActivity().finish();
+                (getActivityComponent().getContext()).startActivity(intent);
+                ((AppCompatActivity)getActivityComponent().getContext()).finish();
             }
         });
     }

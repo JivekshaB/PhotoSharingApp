@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -190,7 +191,7 @@ public class ViewPostFragment extends BaseFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mOnCommentThreadSelectedListener = (OnCommentThreadSelectedListener) getActivityComponent().getActivity();
+            mOnCommentThreadSelectedListener = (OnCommentThreadSelectedListener) ((AppCompatActivity)getActivityComponent().getContext());
         } catch (ClassCastException e) {
             Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage());
         }
@@ -450,7 +451,7 @@ public class ViewPostFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back");
-                getActivityComponent().getActivity().getSupportFragmentManager().popBackStack();
+                ((AppCompatActivity)getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
             }
         });
 
@@ -553,7 +554,7 @@ public class ViewPostFragment extends BaseFragment {
     private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), getActivityComponent().getActivity(), bottomNavigationView);
+        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), ((AppCompatActivity)getActivityComponent().getContext()), bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(mActivityNumber);
         menuItem.setChecked(true);

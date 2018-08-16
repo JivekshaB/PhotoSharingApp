@@ -220,7 +220,7 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
                     Log.d(TAG, "displayPhotos: adding a photo to paginated list: " + mPhotos.get(i).getPhoto_id());
                 }
 
-                adapter = new MainFeedListAdapter(getFragmentContext(), R.layout.layout_mainfeed_listitem, mPaginatedPhotos);
+                adapter = new MainFeedListAdapter(getFragmentContext(), R.layout.layout_mainfeed_listitem, mPaginatedPhotos, getApplicationComponent().getUniversalImageLoader());
                 mListView.setAdapter(adapter);
 
                 // Notify update is done

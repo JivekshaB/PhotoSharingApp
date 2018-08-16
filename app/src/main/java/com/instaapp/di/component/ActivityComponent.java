@@ -23,7 +23,4 @@ public interface ActivityComponent {
     @ActivityContext
     Context getContext();
 
-    AppCompatActivity getActivity();
-
-
 }

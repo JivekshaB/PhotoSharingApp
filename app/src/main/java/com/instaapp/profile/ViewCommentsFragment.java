@@ -4,6 +4,7 @@ package com.instaapp.profile;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -101,7 +102,7 @@ public class ViewCommentsFragment extends BaseFragment {
                     mComment.setText("");
                     closeKeyboard();
                 } else {
-                    Toast.makeText(getActivityComponent().getActivity(), "you can't post a blank comment", Toast.LENGTH_SHORT).show();
+                    Toast.makeText((getActivityComponent().getContext()), "you can't post a blank comment", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -111,10 +112,10 @@ public class ViewCommentsFragment extends BaseFragment {
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back");
                 if (getCallingActivityFromBundle().equals(getString(R.string.home_activity))) {
-                    getActivityComponent().getActivity().getSupportFragmentManager().popBackStack();
+                    ((AppCompatActivity)getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
                     ((HomeActivity) getActivity()).showLayout();
                 } else {
-                    getActivityComponent().getActivity().getSupportFragmentManager().popBackStack();
+                    ((AppCompatActivity)getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
                 }
 
             }
@@ -122,9 +123,9 @@ public class ViewCommentsFragment extends BaseFragment {
     }
 
     private void closeKeyboard() {
-        View view = getActivityComponent().getActivity().getCurrentFocus();
+        View view = ((AppCompatActivity)getActivityComponent().getContext()).getCurrentFocus();
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getActivityComponent().getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) ((AppCompatActivity)getActivityComponent().getContext()).getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
