@@ -3,7 +3,6 @@ package com.instaapp.share;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -29,6 +28,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 /**
@@ -107,14 +107,16 @@ public class GalleryFragment extends BaseFragment {
 
     private void init() {
         FilePaths filePaths = new FilePaths();
-
         //check for other folders inside "/storage/emulated/0/pictures"
+        directories.add(filePaths.CAMERA);
         if (FileSearch.getDirectoryPaths(filePaths.PICTURES) != null) {
-            directories = FileSearch.getDirectoryPaths(filePaths.PICTURES);
+            for (String picturesFilePath : FileSearch.getDirectoryPaths(filePaths.PICTURES)) {
+                if (null != FileSearch.getFilePaths(picturesFilePath) && FileSearch.getFilePaths(picturesFilePath).size() > 0) {
+                    directories.add(picturesFilePath);
+                }
+            }
         }
 
-        directories.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath());
-        directories.add(filePaths.CAMERA);
 
         ArrayList<String> directoryNames = new ArrayList<>();
         for (int i = 0; i < directories.size(); i++) {
@@ -150,6 +152,7 @@ public class GalleryFragment extends BaseFragment {
         Log.d(TAG, "setupGridView: directory chosen: " + selectedDirectory);
         final ArrayList<String> imgURLs = FileSearch.getFilePaths(selectedDirectory);
 
+        Collections.sort(imgURLs, Collections.<String>reverseOrder());
         //set the grid column width
         int gridWidth = getResources().getDisplayMetrics().widthPixels;
         int imageWidth = gridWidth / NUM_GRID_COLUMNS;
