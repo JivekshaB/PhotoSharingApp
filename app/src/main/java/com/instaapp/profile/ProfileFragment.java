@@ -309,7 +309,7 @@ public class ProfileFragment extends BaseFragment {
      */
     private void setupToolbar() {
 
-        ((AppCompatActivity)getActivityComponent().getContext()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) getActivityComponent().getContext()).setSupportActionBar(toolbar);
 
         profileMenu.setOnClickListener(new View.OnClickListener() {
             @Override

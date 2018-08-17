@@ -157,33 +157,35 @@ public class GalleryFragment extends BaseFragment {
             imgURLs = FileSearch.getFilePaths(selectedDirectory);
         }
 
-        Collections.sort(imgURLs, Collections.<String>reverseOrder());
-        //set the grid column width
-        int gridWidth = getResources().getDisplayMetrics().widthPixels;
-        int imageWidth = gridWidth / NUM_GRID_COLUMNS;
-        gridView.setColumnWidth(imageWidth);
+        if (null != imgURLs && imgURLs.size() > 0) {
+            Collections.sort(imgURLs, Collections.<String>reverseOrder());
+            //set the grid column width
+            int gridWidth = getResources().getDisplayMetrics().widthPixels;
+            int imageWidth = gridWidth / NUM_GRID_COLUMNS;
+            gridView.setColumnWidth(imageWidth);
 
-        //use the grid adapter to adapter the images to gridview
-        GridImageAdapter adapter = new GridImageAdapter(getFragmentContext(), R.layout.layout_grid_imageview, mAppend, imgURLs);
-        gridView.setAdapter(adapter);
+            //use the grid adapter to adapter the images to gridview
+            GridImageAdapter adapter = new GridImageAdapter(getFragmentContext(), R.layout.layout_grid_imageview, mAppend, imgURLs);
+            gridView.setAdapter(adapter);
 
-        //set the first image to be displayed when the activity fragment view is inflated
-        try {
-            setImage(imgURLs.get(0), galleryImage, mAppend);
-            mSelectedImage = imgURLs.get(0);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            Log.e(TAG, "setupGridView: ArrayIndexOutOfBoundsException: " + e.getMessage());
-        }
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "onItemClick: selected an image: " + imgURLs.get(position));
-
-                setImage(imgURLs.get(position), galleryImage, mAppend);
-                mSelectedImage = imgURLs.get(position);
+            //set the first image to be displayed when the activity fragment view is inflated
+            try {
+                setImage(imgURLs.get(0), galleryImage, mAppend);
+                mSelectedImage = imgURLs.get(0);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                Log.e(TAG, "setupGridView: ArrayIndexOutOfBoundsException: " + e.getMessage());
             }
-        });
+
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Log.d(TAG, "onItemClick: selected an image: " + imgURLs.get(position));
+
+                    setImage(imgURLs.get(position), galleryImage, mAppend);
+                    mSelectedImage = imgURLs.get(position);
+                }
+            });
+        }
 
     }
 
