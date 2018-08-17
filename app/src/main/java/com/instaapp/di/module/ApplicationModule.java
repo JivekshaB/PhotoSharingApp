@@ -116,8 +116,7 @@ public class ApplicationModule {
      */
     @Provides
     FirebaseMethods providesFirebaseMethods() {
-        FirebaseMethods mFirebaseMethods = new FirebaseMethods(provideContext());
-        return mFirebaseMethods;
+        return new FirebaseMethods(provideContext());
     }
 
 
@@ -128,8 +127,7 @@ public class ApplicationModule {
      */
     @Provides
     FirebaseDatabase providesFirebaseDatabase() {
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        return mFirebaseDatabase;
+        return FirebaseDatabase.getInstance();
     }
 
 }

@@ -37,10 +37,6 @@
 
         </activity>
         <activity
-            android:name=".likes.LikesActivity"
-            android:launchMode="singleInstance"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".profile.ProfileActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
@@ -77,6 +73,7 @@
             android:windowSoftInputMode="adjustNothing">
 
         </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="6979b9653179490a3e2bd71d679be5ec1de34fa4" />
