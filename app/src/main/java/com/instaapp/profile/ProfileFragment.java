@@ -294,7 +294,7 @@ public class ProfileFragment extends BaseFragment {
     private void setProfileWidgets(UserSettings userSettings) {
         UserAccountSettings settings = userSettings.getSettings();
 
-        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
+        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(),settings.getProfile_photo(), mProfilePhoto, null, "");
 
         mDisplayName.setText(settings.getDisplay_name());
         mUsername.setText(settings.getUsername());

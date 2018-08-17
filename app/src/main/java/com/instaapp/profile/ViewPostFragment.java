@@ -125,7 +125,7 @@ public class ViewPostFragment extends BaseFragment {
     private void init() {
         try {
             //mPhoto = getPhotoFromBundle();
-            UniversalImageLoader.setImage(getPhotoFromBundle().getImage_path(), mPostImage, null, "");
+            UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(),getPhotoFromBundle().getImage_path(), mPostImage, null, "");
             mActivityNumber = getActivityNumFromBundle();
             String photo_id = getPhotoFromBundle().getPhoto_id();
 
@@ -426,7 +426,7 @@ public class ViewPostFragment extends BaseFragment {
         } else {
             mTimestamp.setText("TODAY");
         }
-        UniversalImageLoader.setImage(mUserAccountSettings.getProfile_photo(), mProfileImage, null, "");
+        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(),mUserAccountSettings.getProfile_photo(), mProfileImage, null, "");
         mUsername.setText(mUserAccountSettings.getUsername());
         mLikes.setText(mLikesString);
         mCaption.setText(mPhoto.getCaption());

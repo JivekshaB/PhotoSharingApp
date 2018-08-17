@@ -33,6 +33,7 @@ import com.instaapp.profile.ProfileActivity;
 import com.instaapp.utils.LikeToggle;
 import com.instaapp.utils.SquareImageView;
 import com.instaapp.utils.UniversalImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -64,19 +65,15 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
     private Context mContext;
     private DatabaseReference mReference;
     private String currentUsername = "";
-    private UniversalImageLoader mUniversalImageLoader;
+    private ImageLoader mUniversalImageLoader;
 
-    public MainFeedListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<Photo> objects, UniversalImageLoader imageLoader) {
+    public MainFeedListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<Photo> objects, ImageLoader imageLoader) {
         super(context, resource, objects);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mLayoutResource = resource;
         this.mContext = context;
         mReference = FirebaseDatabase.getInstance().getReference();
         mUniversalImageLoader = imageLoader;
-
-//        for(Photo photo: objects){
-//            Log.d(TAG, "MainFeedListAdapter: photo id: " + photo.getPhoto_id());
-//        }
     }
 
     static class ViewHolder {
@@ -162,7 +159,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
 
         //set the profile image
 
-        mUniversalImageLoader.setImage(getItem(position).getImage_path(), holder.image, null, "");
+        UniversalImageLoader.setImage(mUniversalImageLoader, getItem(position).getImage_path(), holder.image, null, "");
 
 
         //get the profile image and username
@@ -196,7 +193,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
                         }
                     });
 
-                    mUniversalImageLoader.setImage(singleSnapshot.getValue(UserAccountSettings.class).getProfile_photo(), holder.mprofileImage, null, "");
+                    UniversalImageLoader.setImage(mUniversalImageLoader, singleSnapshot.getValue(UserAccountSettings.class).getProfile_photo(), holder.mprofileImage, null, "");
 
                     holder.mprofileImage.setOnClickListener(new View.OnClickListener() {
                         @Override

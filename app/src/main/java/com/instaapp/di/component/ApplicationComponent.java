@@ -8,7 +8,7 @@ import com.instaapp.InstaApplication;
 import com.instaapp.di.annotation.ApplicationContext;
 import com.instaapp.di.module.ApplicationModule;
 import com.instaapp.utils.FirebaseMethods;
-import com.instaapp.utils.UniversalImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import javax.inject.Singleton;
 
@@ -26,7 +26,7 @@ public interface ApplicationComponent {
     @ApplicationContext
     Context getContext();
 
-    UniversalImageLoader getUniversalImageLoader();
+    ImageLoader getUniversalImageLoader();
 
     FirebaseAuth getFirebaseAuth();
 

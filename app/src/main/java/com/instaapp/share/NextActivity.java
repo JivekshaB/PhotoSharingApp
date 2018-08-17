@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -124,11 +123,11 @@ public class NextActivity extends BaseActivity {
         if (intent.hasExtra(getString(R.string.selected_image))) {
             imgUrl = intent.getStringExtra(getString(R.string.selected_image));
             Log.d(TAG, "setImage: got new image url: " + imgUrl);
-            UniversalImageLoader.setImage(imgUrl, image, null, mAppend);
+            UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(), imgUrl, image, null, mAppend);
         } else if (intent.hasExtra(getString(R.string.selected_bitmap))) {
             imgUrl = intent.getStringExtra(getString(R.string.selected_bitmap));
             Log.d(TAG, "setImage: got new bitmap");
-            UniversalImageLoader.setImage(imgUrl, image, null, mAppend);
+            UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(), imgUrl, image, null, mAppend);
         }
     }
 

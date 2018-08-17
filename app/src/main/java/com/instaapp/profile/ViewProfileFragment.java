@@ -114,7 +114,7 @@ public class ViewProfileFragment extends BaseFragment {
         } catch (NullPointerException e) {
             Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage());
             Toast.makeText(getFragmentContext(), "something went wrong", Toast.LENGTH_SHORT).show();
-            ((AppCompatActivity)getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
+            ((AppCompatActivity) getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
         }
 
         setupBottomNavigationView();
@@ -433,7 +433,7 @@ public class ViewProfileFragment extends BaseFragment {
         //User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
 
-        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
+        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(), settings.getProfile_photo(), mProfilePhoto, null, "");
 
         mDisplayName.setText(settings.getDisplay_name());
         mUsername.setText(settings.getUsername());
@@ -448,8 +448,8 @@ public class ViewProfileFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back");
-                ((AppCompatActivity)getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
-                ((AppCompatActivity)getActivityComponent().getContext()).finish();
+                ((AppCompatActivity) getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
+                ((AppCompatActivity) getActivityComponent().getContext()).finish();
             }
         });
 
@@ -462,7 +462,7 @@ public class ViewProfileFragment extends BaseFragment {
     private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), ((AppCompatActivity)getActivityComponent().getContext()), bottomNavigationView);
+        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), ((AppCompatActivity) getActivityComponent().getContext()), bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);

@@ -1,7 +1,6 @@
 package com.instaapp;
 
 import android.content.Context;
-import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,7 +13,6 @@ import com.instaapp.di.component.ApplicationComponent;
 import com.instaapp.di.component.DaggerActivityComponent;
 import com.instaapp.di.module.ActivityModule;
 import com.instaapp.utils.FirebaseMethods;
-import com.instaapp.utils.UniversalImageLoader;
 
 /**
  * Created by jiveksha on 8/14/18.
@@ -72,11 +70,6 @@ public class BaseActivity extends AppCompatActivity {
     @NonNull
     protected FirebaseAuth getFireBaseAuth() {
         return getApplicationComponent().getFirebaseAuth();
-    }
-
-    @NonNull
-    protected UniversalImageLoader getUniversalImageLoader() {
-        return getApplicationComponent().getUniversalImageLoader();
     }
 
     @NonNull

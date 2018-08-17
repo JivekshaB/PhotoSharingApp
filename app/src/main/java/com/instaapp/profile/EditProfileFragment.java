@@ -203,7 +203,7 @@ public class EditProfileFragment extends BaseFragment implements
         mUserSettings = userSettings;
         //User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
-        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
+        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(),settings.getProfile_photo(), mProfilePhoto, null, "");
         mDisplayName.setText(settings.getDisplay_name());
         mUsername.setText(settings.getUsername());
         mWebsite.setText(settings.getWebsite());

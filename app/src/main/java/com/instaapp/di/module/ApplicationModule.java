@@ -6,10 +6,15 @@ import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.instaapp.R;
 import com.instaapp.di.annotation.ApplicationContext;
 import com.instaapp.utils.FirebaseMethods;
-import com.instaapp.utils.UniversalImageLoader;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import dagger.Module;
 import dagger.Provides;
@@ -22,17 +27,6 @@ import dagger.Provides;
 public class ApplicationModule {
 
     private final Application mApplication;
-
-    private FirebaseAuth mFirebaseAuth;
-
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-
-    private FirebaseMethods mFirebaseMethods;
-
-    private FirebaseDatabase mFirebaseDatabase;
-
-    private UniversalImageLoader mImageLoader;
-
 
     public ApplicationModule(Application app) {
         mApplication = app;
@@ -66,8 +60,7 @@ public class ApplicationModule {
      */
     @Provides
     FirebaseAuth providesFirebaseAuth() {
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        return mFirebaseAuth;
+        return FirebaseAuth.getInstance();
     }
 
     /**
@@ -77,13 +70,12 @@ public class ApplicationModule {
      */
     @Provides
     FirebaseAuth.AuthStateListener providesAuthStateListener() {
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+        return new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
             }
         };
-        return mAuthStateListener;
     }
 
     /**
@@ -92,10 +84,29 @@ public class ApplicationModule {
      * @return {@link ImageLoader}
      */
     @Provides
-    UniversalImageLoader providesUniverImageLoader() {
-        mImageLoader = new UniversalImageLoader(provideContext());
-        ImageLoader.getInstance().init(mImageLoader.getConfig());
-        return mImageLoader;
+    ImageLoader providesUniversalImageLoader() {
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        final int defaultImage = R.drawable.ic_android;
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .showImageOnLoading(defaultImage)
+                .showImageForEmptyUri(defaultImage)
+                .showImageOnFail(defaultImage)
+                .showImageOnLoading(defaultImage)
+                .cacheOnDisk(true).cacheInMemory(true)
+                .cacheOnDisk(true).resetViewBeforeLoading(true)
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .displayer(new FadeInBitmapDisplayer(300))
+                .considerExifParams(true)
+                .build();
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(provideContext())
+                .defaultDisplayImageOptions(defaultOptions)
+                .memoryCache(new WeakMemoryCache())
+                .diskCacheSize(100 * 1024 * 1024).build();
+
+        imageLoader.init(config);
+
+        return imageLoader;
     }
 
     /**
@@ -105,7 +116,7 @@ public class ApplicationModule {
      */
     @Provides
     FirebaseMethods providesFirebaseMethods() {
-        mFirebaseMethods = new FirebaseMethods(provideContext());
+        FirebaseMethods mFirebaseMethods = new FirebaseMethods(provideContext());
         return mFirebaseMethods;
     }
 
@@ -117,7 +128,7 @@ public class ApplicationModule {
      */
     @Provides
     FirebaseDatabase providesFirebaseDatabase() {
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         return mFirebaseDatabase;
     }
 
