@@ -1,48 +1,76 @@
 package com.instaapp.share;
 
-import android.content.Context;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.instaapp.BaseActivity;
+import com.instaapp.BR;
 import com.instaapp.R;
 import com.instaapp.adapter.SectionsPagerAdapter;
+import com.instaapp.base.BaseActivity;
+import com.instaapp.databinding.ActivityShareBinding;
 import com.instaapp.utils.Permissions;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Created by jiveksha on 8/7/18.
  */
 
-public class ShareActivity extends BaseActivity {
-    private static final String TAG = "ShareActivity";
+public class ShareActivity extends BaseActivity<ActivityShareBinding, ShareActivityViewModel> implements ShareActivityNavigator {
+    private static final String TAG = ShareActivity.class.getSimpleName();
 
     //constants
     private static final int VERIFY_PERMISSIONS_REQUEST = 1;
 
-    private ViewPager mViewPager;
+    @Inject
+    @Named("ShareActivity")
+    ViewModelProvider.Factory mViewModelFactory;
+
+    private ActivityShareBinding mActivityShareBinding;
+    private ShareActivityViewModel mShareActivityViewModel;
+
+    @Override
+    public int getBindingVariable() {
+        return BR.viewModel;
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_share;
+    }
+
+    @Override
+    public ShareActivityViewModel getViewModel() {
+        mShareActivityViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ShareActivityViewModel.class);
+        return mShareActivityViewModel;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_share);
-        Log.d(TAG, "onCreate: started.");
+        Log.d(TAG, "onCreate: started AccountSettings");
+        mShareActivityViewModel.setNavigator(this);
+        setUp();
+    }
 
+    private void setUp() {
+        mActivityShareBinding = getViewDataBinding();
         if (checkPermissionsArray(Permissions.PERMISSIONS)) {
             setupViewPager();
         } else {
             verifyPermissions(Permissions.PERMISSIONS);
         }
-
     }
 
-    /**
+    /***
      * return the current tab number
      * 0 = GalleryFragment
      * 1 = PhotoFragment
@@ -50,7 +78,7 @@ public class ShareActivity extends BaseActivity {
      * @return
      */
     public int getCurrentTabNumber() {
-        return mViewPager.getCurrentItem();
+        return mActivityShareBinding.layoutCenterViewPager.viewpagerContainer.getCurrentItem();
     }
 
     /**
@@ -61,11 +89,11 @@ public class ShareActivity extends BaseActivity {
         adapter.addFragment(new GalleryFragment());
         adapter.addFragment(new PhotoFragment());
 
-        mViewPager = findViewById(R.id.viewpager_container);
-        mViewPager.setAdapter(adapter);
+        mActivityShareBinding.layoutCenterViewPager.viewpagerContainer
+                .setAdapter(adapter);
 
         TabLayout tabLayout = findViewById(R.id.tabsBottom);
-        tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setupWithViewPager(mActivityShareBinding.layoutCenterViewPager.viewpagerContainer);
 
         tabLayout.getTabAt(0).setText(getString(R.string.gallery));
         tabLayout.getTabAt(1).setText(getString(R.string.photo));

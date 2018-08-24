@@ -6,15 +6,10 @@ import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
-import com.instaapp.R;
+import com.google.firebase.storage.FirebaseStorage;
 import com.instaapp.di.annotation.ApplicationContext;
-import com.instaapp.utils.FirebaseMethods;
-import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -26,12 +21,6 @@ import dagger.Provides;
 @Module
 public class ApplicationModule {
 
-    private final Application mApplication;
-
-    public ApplicationModule(Application app) {
-        mApplication = app;
-    }
-
     /**
      * Provides application level context
      *
@@ -39,8 +28,9 @@ public class ApplicationModule {
      */
     @Provides
     @ApplicationContext
-    Context provideContext() {
-        return mApplication.getApplicationContext();
+    @Singleton
+    Context provideContext(Application application) {
+        return application.getApplicationContext();
     }
 
     /**
@@ -49,8 +39,9 @@ public class ApplicationModule {
      * @return {@link com.instaapp.InstaApplication}
      */
     @Provides
-    Application provideApplication() {
-        return mApplication;
+    @Singleton
+    Application provideApplication(Application application) {
+        return application;
     }
 
     /**
@@ -59,6 +50,7 @@ public class ApplicationModule {
      * @return {@link FirebaseAuth}
      */
     @Provides
+    @Singleton
     FirebaseAuth providesFirebaseAuth() {
         return FirebaseAuth.getInstance();
     }
@@ -79,55 +71,27 @@ public class ApplicationModule {
     }
 
     /**
-     * Provides universal image loader for all image loading and caching
-     *
-     * @return {@link ImageLoader}
-     */
-    @Provides
-    ImageLoader providesUniversalImageLoader() {
-        ImageLoader imageLoader = ImageLoader.getInstance();
-        final int defaultImage = R.drawable.ic_android;
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .showImageOnLoading(defaultImage)
-                .showImageForEmptyUri(defaultImage)
-                .showImageOnFail(defaultImage)
-                .showImageOnLoading(defaultImage)
-                .cacheOnDisk(true).cacheInMemory(true)
-                .cacheOnDisk(true).resetViewBeforeLoading(true)
-                .imageScaleType(ImageScaleType.EXACTLY)
-                .displayer(new FadeInBitmapDisplayer(300))
-                .considerExifParams(true)
-                .build();
-
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(provideContext())
-                .defaultDisplayImageOptions(defaultOptions)
-                .memoryCache(new WeakMemoryCache())
-                .diskCacheSize(100 * 1024 * 1024).build();
-
-        imageLoader.init(config);
-
-        return imageLoader;
-    }
-
-    /**
-     * Provides FirebaseMethods class for firebase related calls
-     *
-     * @return {@link FirebaseMethods}
-     */
-    @Provides
-    FirebaseMethods providesFirebaseMethods() {
-        return new FirebaseMethods(provideContext());
-    }
-
-
-    /**
      * Provides firebase database
      *
-     * @return {@link com.google.firebase.database.FirebaseDatabase}
+     * @return {@link FirebaseDatabase}
      */
     @Provides
+    @Singleton
     FirebaseDatabase providesFirebaseDatabase() {
         return FirebaseDatabase.getInstance();
     }
+
+
+    /**
+     * Provides firebase storage
+     *
+     * @return {@link FirebaseStorage}
+     */
+    @Provides
+    @Singleton
+    FirebaseStorage providesFirebaseStorage() {
+        return FirebaseStorage.getInstance();
+    }
+
 
 }

@@ -1,54 +1,39 @@
 package com.instaapp.profile;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-import com.instaapp.BaseFragment;
+import com.instaapp.BR;
 import com.instaapp.R;
 import com.instaapp.adapter.GridImageAdapter;
-import com.instaapp.models.Comment;
-import com.instaapp.models.Like;
+import com.instaapp.base.BaseFragment;
+import com.instaapp.databinding.FragmentProfileBinding;
 import com.instaapp.models.Photo;
 import com.instaapp.models.UserAccountSettings;
 import com.instaapp.models.UserSettings;
 import com.instaapp.utils.BottomNavigationViewHelper;
 import com.instaapp.utils.UniversalImageLoader;
-import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
- * Created by User on 6/29/2017.
+ *
  */
 
-public class ProfileFragment extends BaseFragment {
+public class ProfileFragment extends BaseFragment<FragmentProfileBinding, ProfileFragmentViewModel> implements ProfileFragmentNavigator {
 
     private static final String TAG = ProfileFragment.class.getSimpleName();
 
@@ -62,70 +47,67 @@ public class ProfileFragment extends BaseFragment {
     private static final int ACTIVITY_NUM = 3;
     private static final int NUM_GRID_COLUMNS = 3;
 
-    //firebase
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private DatabaseReference myRef;
+
+    @Inject
+    @Named("ProfileFragment")
+    ViewModelProvider.Factory mViewModelFactory;
+
+    private FragmentProfileBinding mFragmentProfileBinding;
+
+    private ProfileFragmentViewModel mProfileFragmentViewModel;
 
 
-    //widgets
-    private TextView mPosts, mFollowers, mFollowing, mDisplayName, mUsername, mWebsite, mDescription;
-    private ProgressBar mProgressBar;
-    private CircleImageView mProfilePhoto;
-    private GridView gridView;
-    private Toolbar toolbar;
-    private ImageView profileMenu;
-    private BottomNavigationViewEx bottomNavigationView;
-
-
-    //vars
-    private int mFollowersCount = 0;
-    private int mFollowingCount = 0;
-    private int mPostsCount = 0;
-
-
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        mDisplayName = view.findViewById(R.id.display_name);
-        mUsername = view.findViewById(R.id.username);
-        mWebsite = view.findViewById(R.id.website);
-        mDescription = view.findViewById(R.id.description);
-        mProfilePhoto = view.findViewById(R.id.profile_photo);
-        mPosts = view.findViewById(R.id.tvPosts);
-        mFollowers = view.findViewById(R.id.tvFollowers);
-        mFollowing = view.findViewById(R.id.tvFollowing);
-        mProgressBar = view.findViewById(R.id.profileProgressBar);
-        gridView = view.findViewById(R.id.imageGridView);
-        toolbar = view.findViewById(R.id.profileToolBar);
-        profileMenu = view.findViewById(R.id.profileMenu);
-        bottomNavigationView = view.findViewById(R.id.bottomNavViewBar);
-        Log.d(TAG, "onCreateView: stared.");
+    public int getBindingVariable() {
+        return BR.viewModel;
+    }
 
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_profile;
+    }
+
+    @Override
+    public ProfileFragmentViewModel getViewModel() {
+        mProfileFragmentViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ProfileFragmentViewModel.class);
+        return mProfileFragmentViewModel;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mProfileFragmentViewModel.setNavigator(this);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mFragmentProfileBinding = getViewDataBinding();
+        setUp();
+    }
+
+    private void setUp() {
 
         setupBottomNavigationView();
         setupToolbar();
 
-        setupFirebaseAuth();
-        setupGridView();
+        mProfileFragmentViewModel.getUserSettings();
+        mProfileFragmentViewModel.getFollowersCount();
+        mProfileFragmentViewModel.getFollowingCount();
+        mProfileFragmentViewModel.getPostsCount();
+        mProfileFragmentViewModel.getPhotosForGrid();
 
-        getFollowersCount();
-        getFollowingCount();
-        getPostsCount();
-
-        TextView editProfile = view.findViewById(R.id.textEditProfile);
-        editProfile.setOnClickListener(new View.OnClickListener() {
+        mFragmentProfileBinding.layoutCenterProfile.layoutTopProfile.textEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 Log.d(TAG, "onClick: navigating to " + getString(R.string.edit_profile_fragment));
-                Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
+                Intent intent = new Intent(getContext(), AccountSettingsActivity.class);
                 intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
                 startActivity(intent);
                 getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
 
-        return view;
     }
 
     @Override
@@ -138,188 +120,88 @@ public class ProfileFragment extends BaseFragment {
         super.onAttach(context);
     }
 
-    private void setupGridView() {
+    @Override
+    public void setupImageGrid(final ArrayList<Photo> photos) {
         Log.d(TAG, "setupGridView: Setting up image grid.");
         if (isAdded()) {
-            final ArrayList<Photo> photos = new ArrayList<>();
-            DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
-            Query query = reference
-                    .child(getString(R.string.dbname_user_photos))
-                    .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
-            query.addListenerForSingleValueEvent(new ValueEventListener() {
+            //setup our image grid
+            int gridWidth = getResources().getDisplayMetrics().widthPixels;
+            int imageWidth = gridWidth / NUM_GRID_COLUMNS;
+            mFragmentProfileBinding.layoutCenterProfile.imageGridView.setColumnWidth(imageWidth);
+
+            ArrayList<String> imgUrls = new ArrayList<>();
+            for (int i = 0; i < photos.size(); i++) {
+                imgUrls.add(photos.get(i).getImage_path());
+            }
+            GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview,
+                    "", imgUrls);
+            mFragmentProfileBinding.layoutCenterProfile.imageGridView.setAdapter(adapter);
+
+            mFragmentProfileBinding.layoutCenterProfile.imageGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-
-                        Photo photo = new Photo();
-                        Map<String, Object> objectMap = (HashMap<String, Object>) singleSnapshot.getValue();
-
-                        try {
-
-                            photo.setCaption(objectMap.get(getString(R.string.field_caption)).toString());
-                            photo.setTags(objectMap.get(getString(R.string.field_tags)).toString());
-                            photo.setPhoto_id(objectMap.get(getString(R.string.field_photo_id)).toString());
-                            photo.setUser_id(objectMap.get(getString(R.string.field_user_id)).toString());
-                            photo.setDate_created(objectMap.get(getString(R.string.field_date_created)).toString());
-                            photo.setImage_path(objectMap.get(getString(R.string.field_image_path)).toString());
-
-                            ArrayList<Comment> comments = new ArrayList<Comment>();
-                            for (DataSnapshot dSnapshot : singleSnapshot
-                                    .child(getString(R.string.field_comments)).getChildren()) {
-                                Comment comment = new Comment();
-                                comment.setUser_id(dSnapshot.getValue(Comment.class).getUser_id());
-                                comment.setComment(dSnapshot.getValue(Comment.class).getComment());
-                                comment.setDate_created(dSnapshot.getValue(Comment.class).getDate_created());
-                                comments.add(comment);
-                            }
-
-                            photo.setComments(comments);
-
-                            List<Like> likesList = new ArrayList<Like>();
-                            for (DataSnapshot dSnapshot : singleSnapshot
-                                    .child(getString(R.string.field_likes)).getChildren()) {
-                                Like like = new Like();
-                                like.setUser_id(dSnapshot.getValue(Like.class).getUser_id());
-                                likesList.add(like);
-                            }
-                            photo.setLikes(likesList);
-                            photos.add(photo);
-
-                        } catch (NullPointerException e) {
-                            Log.e(TAG, "onDataChange: NullPointerException: " + e.getMessage());
-                        }
-                    }
-
-                    //setup our image grid
-                    int gridWidth = getResources().getDisplayMetrics().widthPixels;
-                    int imageWidth = gridWidth / NUM_GRID_COLUMNS;
-                    gridView.setColumnWidth(imageWidth);
-
-                    ArrayList<String> imgUrls = new ArrayList<String>();
-                    for (int i = 0; i < photos.size(); i++) {
-                        imgUrls.add(photos.get(i).getImage_path());
-                    }
-                    GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview,
-                            "", imgUrls);
-                    gridView.setAdapter(adapter);
-
-                    gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            mOnGridImageSelectedListener.onGridImageSelected(photos.get(position), ACTIVITY_NUM);
-                        }
-                    });
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG, "onCancelled: query cancelled.");
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    mOnGridImageSelectedListener.onGridImageSelected(photos.get(position), ACTIVITY_NUM);
                 }
             });
+
         }
     }
 
-    private void getFollowersCount() {
-        mFollowersCount = 0;
-
-        DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
-        Query query = reference.child(getString(R.string.dbname_followers))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: found follower:" + singleSnapshot.getValue());
-                    mFollowersCount++;
-                }
-                mFollowers.setText(String.valueOf(mFollowersCount));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void getFollowingCount() {
-        mFollowingCount = 0;
-
-        DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
-        Query query = reference.child(getString(R.string.dbname_following))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: found following user:" + singleSnapshot.getValue());
-                    mFollowingCount++;
-                }
-                mFollowing.setText(String.valueOf(mFollowingCount));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void getPostsCount() {
-        mPostsCount = 0;
-
-        DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
-        Query query = reference.child(getString(R.string.dbname_user_photos))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: found post:" + singleSnapshot.getValue());
-                    mPostsCount++;
-                    mPosts.setText(String.valueOf(mPostsCount));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-    }
-
-    private void setProfileWidgets(UserSettings userSettings) {
+    @Override
+    public void setProfileWidgets(UserSettings userSettings) {
         UserAccountSettings settings = userSettings.getSettings();
-
-        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(),settings.getProfile_photo(), mProfilePhoto, null, "");
-
-        mDisplayName.setText(settings.getDisplay_name());
-        mUsername.setText(settings.getUsername());
-        mWebsite.setText(settings.getWebsite());
-        mDescription.setText(settings.getDescription());
-        mProgressBar.setVisibility(View.GONE);
+        UniversalImageLoader.setImage(mProfileFragmentViewModel.getImageLoader(), settings.getProfile_photo(), mFragmentProfileBinding.layoutCenterProfile.profilePhoto, null, "");
+        mFragmentProfileBinding.layoutCenterProfile.displayName.setText(settings.getDisplay_name());
+        mFragmentProfileBinding.layoutTopProfileBar.username.setText(settings.getUsername());
+        mFragmentProfileBinding.layoutCenterProfile.website.setText(settings.getWebsite());
+        mFragmentProfileBinding.layoutCenterProfile.description.setText(settings.getDescription());
+        mFragmentProfileBinding.profileProgressBar.setVisibility(View.GONE);
     }
 
 
     /**
-     * Responsible for setting up the profile toolbar
+     * Responsible for
+     * setting up
+     * the profile
+     * toolbar
      */
+
     private void setupToolbar() {
 
-        ((AppCompatActivity) getActivityComponent().getContext()).setSupportActionBar(toolbar);
+        getBaseActivity().setSupportActionBar(mFragmentProfileBinding.layoutTopProfileBar.profileToolBar);
 
-        profileMenu.setOnClickListener(new View.OnClickListener() {
+        mFragmentProfileBinding.layoutTopProfileBar.profileMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating to account settings.");
-                Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
+                Intent intent = new Intent(getBaseActivity(), AccountSettingsActivity.class);
                 startActivity(intent);
                 getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
+    }
+
+
+    @Override
+    public String getStringValue(int id) {
+        return getString(id);
+    }
+
+    @Override
+    public void setFollowersCount(int count) {
+        mFragmentProfileBinding.layoutCenterProfile.layoutTopProfile.textFollowers.setText(String.valueOf(count));
+    }
+
+    @Override
+    public void setFollowingCount(int count) {
+        mFragmentProfileBinding.layoutCenterProfile.layoutTopProfile.textFollowing.setText(String.valueOf(count));
+
+    }
+
+    @Override
+    public void setPostsCount(int count) {
+        mFragmentProfileBinding.layoutCenterProfile.layoutTopProfile.textPosts.setText(String.valueOf(count));
+
     }
 
     /**
@@ -327,39 +209,12 @@ public class ProfileFragment extends BaseFragment {
      */
     private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
-        BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), getActivity(), bottomNavigationView);
-        Menu menu = bottomNavigationView.getMenu();
+        BottomNavigationViewHelper.setupBottomNavigationView(mFragmentProfileBinding.layoutBottomNav.bottomNavViewBar);
+        BottomNavigationViewHelper.enableNavigation(getContext(), getActivity(), mFragmentProfileBinding.layoutBottomNav.bottomNavViewBar);
+        Menu menu = mFragmentProfileBinding.layoutBottomNav.bottomNavViewBar.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
     }
 
-    /**
-     ------------------------------------ Firebase ---------------------------------------------
-     */
-
-    /**
-     * Setup the firebase auth object
-     */
-    private void setupFirebaseAuth() {
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
-
-        myRef = getApplicationComponent().getFirebaseDatabase().getReference();
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                //retrieve user information from the database
-                setProfileWidgets(getApplicationComponent().getFirebaseMethods().getUserSettings(dataSnapshot));
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
 }

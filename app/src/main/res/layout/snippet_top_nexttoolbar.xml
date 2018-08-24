@@ -1,52 +1,62 @@
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/white_grey_border_bottom"
-        >
+    <data>
 
-        <android.support.v7.widget.Toolbar
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.share.NextActivityViewModel" />
+
+    </data>
+
+    <merge
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/profileToolBar">
+            android:layout_height="50dp"
+            android:background="@drawable/white_grey_border_bottom">
 
-            <RelativeLayout
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/profileToolBar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_centerVertical="true"
-                    android:id="@+id/ivBackArrow"
-                    android:src="@drawable/ic_back"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/string_share"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="15dp"
-                    android:textSize="20sp"
-                    android:textColor="@color/link_blue"
-                    android:layout_centerVertical="true"
-                    android:id="@+id/tvShare"
-                    />
+                    <ImageView
+                        android:id="@+id/ivBackArrow"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="20dp"
+                        android:src="@drawable/ic_back" />
 
 
+                    <TextView
+                        android:id="@+id/tvShare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="15dp"
+                        android:text="@string/string_share"
+                        android:textColor="@color/link_blue"
+                        android:textSize="20sp" />
 
 
-            </RelativeLayout>
+                </RelativeLayout>
 
 
-        </android.support.v7.widget.Toolbar>
+            </android.support.v7.widget.Toolbar>
 
 
+        </android.support.design.widget.AppBarLayout>
 
-    </android.support.design.widget.AppBarLayout>
-
-</merge>
+    </merge>
+</layout>

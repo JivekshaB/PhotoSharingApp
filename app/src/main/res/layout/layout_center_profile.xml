@@ -1,5 +1,15 @@
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+    </data>
+
+    <!--   <merge
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content">-->
 
 
     <!-- ********************Middle Section*************************** -->
@@ -8,7 +18,6 @@
         android:id="@+id/relLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/relLayout1"
         android:background="@color/white">
 
         <LinearLayout
@@ -43,7 +52,9 @@
                 android:layout_marginStart="30dp"
                 android:layout_weight="75">
 
-                <include layout="@layout/snippet_top_profile" />
+                <include
+                    android:id="@+id/layoutTopProfile"
+                    layout="@layout/snippet_top_profile" />
 
             </RelativeLayout>
 
@@ -113,7 +124,11 @@
     </RelativeLayout>
 
 
-</merge>
+    <!--
+        </merge>
+    -->
+
+</layout>
 
 
 

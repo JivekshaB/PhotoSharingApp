@@ -1,26 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.profile.ViewPostFragmentViewModel" />
+
+    </data>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/relLayout1">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <include layout="@layout/snippet_post_toolbar"/>
+        <RelativeLayout
+            android:id="@+id/relLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/layoutPostToolbar"
+                layout="@layout/snippet_post_toolbar" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relLayout2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/relLayout1">
+
+            <include
+                android:id="@+id/layoutViewPost"
+                layout="@layout/layout_view_post" />
+
+        </RelativeLayout>
 
     </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/relLayout2"
-        android:layout_below="@+id/relLayout1">
-
-        <include layout="@layout/layout_view_post"/>
-
-    </RelativeLayout>
-
-</RelativeLayout>
+</layout>

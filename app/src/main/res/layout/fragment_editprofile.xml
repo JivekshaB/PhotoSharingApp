@@ -1,33 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <RelativeLayout
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.profile.EditProfileFragmentViewModel" />
+
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/relLayout1">
+            android:layout_height="match_parent">
 
-            <include layout="@layout/snippet_top_editprofiletoolbar"/>
+            <RelativeLayout
+                android:id="@+id/relLayout1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include layout="@layout/snippet_top_editprofiletoolbar" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/relLayout1">
+
+
+                <include layout="@layout/snippet_center_editprofile" />
+
+            </RelativeLayout>
+
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/relLayout1"
-            android:id="@+id/relLayout2">
-
-
-            <include layout="@layout/snippet_center_editprofile"/>
-
-        </RelativeLayout>
-
-
-    </RelativeLayout>
-
-</android.support.design.widget.CoordinatorLayout>
+    </android.support.design.widget.CoordinatorLayout>
+</layout>

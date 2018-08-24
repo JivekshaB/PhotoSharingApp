@@ -1,51 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.profile.SignOutFragmentViewModel" />
+
+    </data>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:layout_centerHorizontal="true">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <TextView
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:id="@+id/tvConfirmSignout"
-            android:text="@string/profile_sign_out_confirm_text"/>
-
-        <Button
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_sign_out_label"
             android:layout_centerHorizontal="true"
-            android:textSize="20sp"
-            android:id="@+id/btnConfirmSignout"
-            android:layout_below="@+id/tvConfirmSignout"
-            android:background="@drawable/white_rounded_button"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="80dp">
 
+            <TextView
+                android:id="@+id/tvConfirmSignout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_sign_out_confirm_text"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/btnConfirmSignout"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvConfirmSignout"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/white_rounded_button"
+                android:text="@string/profile_sign_out_label"
+                android:textSize="20sp" />
+
+
+        </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:id="@+id/tvSigningOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/progressBar"
+            android:layout_alignLeft="@+id/progressBar"
+            android:layout_alignRight="@+id/progressBar"
+            android:text="@string/profile_signing_out"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
 
     </RelativeLayout>
-
-    <ProgressBar
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_centerInParent="true"
-        android:id="@+id/progressBar"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/profile_signing_out"
-        android:textSize="20sp"
-        android:layout_alignBottom="@+id/progressBar"
-        android:layout_alignRight="@+id/progressBar"
-        android:layout_alignLeft="@+id/progressBar"
-        android:textColor="@color/black"
-        android:id="@+id/tvSigningOut"/>
-
-</RelativeLayout>
+</layout>

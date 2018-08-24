@@ -1,22 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".home.HomeActivity">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/tab_bar_height"
-        android:layout_alignParentBottom="true">
+    <data>
 
-        <com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx
-            android:id="@+id/bottomNavViewBar"
+        <import type="android.view.View" />
+
+    </data>
+
+    <merge
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:menu="@menu/bottom_navigation_menu"
-            android:background="@drawable/white_grey_border_top">
+            android:layout_height="@dimen/tab_bar_height"
+            android:layout_alignParentBottom="true">
+
+            <com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx
+                android:id="@+id/bottomNavViewBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/white_grey_border_top"
+                app:menu="@menu/bottom_navigation_menu">
 
 
-        </com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx>>
+            </com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx>
 
-    </RelativeLayout>
+        </RelativeLayout>
 
-</merge>
+    </merge>
+</layout>

@@ -1,39 +1,41 @@
 package com.instaapp.di.component;
 
+import android.app.Application;
 import android.content.Context;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.instaapp.InstaApplication;
-import com.instaapp.di.annotation.ApplicationContext;
+import com.instaapp.di.builder.ActivityBuilder;
 import com.instaapp.di.module.ApplicationModule;
-import com.instaapp.utils.FirebaseMethods;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import javax.inject.Singleton;
 
+import dagger.BindsInstance;
 import dagger.Component;
+import dagger.android.AndroidInjector;
+import dagger.android.support.AndroidSupportInjectionModule;
+import dagger.android.support.DaggerApplication;
 
 /**
  * Created by jiveksha on 8/13/18.
  */
 @Singleton
-@Component(modules = ApplicationModule.class)
-public interface ApplicationComponent {
+@Component(modules = {AndroidSupportInjectionModule.class, ApplicationModule.class, ActivityBuilder.class})
+public interface ApplicationComponent extends AndroidInjector<DaggerApplication> {
 
-    void inject(InstaApplication instaApplication);
+    void inject(InstaApplication app);
 
-    @ApplicationContext
-    Context getContext();
+    @Override
+    void inject(DaggerApplication instance);
 
-    ImageLoader getUniversalImageLoader();
+    @Component.Builder
+    interface Builder {
 
-    FirebaseAuth getFirebaseAuth();
+        @BindsInstance
+        Builder application(Application application);
 
-    FirebaseAuth.AuthStateListener getAuthStateListener();
+        @BindsInstance
+        Builder context(Context context);
 
-    FirebaseDatabase getFirebaseDatabase();
-
-    FirebaseMethods getFirebaseMethods();
-
+        ApplicationComponent build();
+    }
 }

@@ -1,111 +1,105 @@
 package com.instaapp.profile;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.instaapp.BaseFragment;
+import com.instaapp.BR;
 import com.instaapp.R;
+import com.instaapp.base.BaseFragment;
+import com.instaapp.databinding.FragmentSignoutBinding;
 import com.instaapp.login.LoginActivity;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 
 /**
  * Created by User on 6/4/2017.
  */
 
-public class SignOutFragment extends BaseFragment {
+public class SignOutFragment extends BaseFragment<FragmentSignoutBinding, SignOutFragmentViewModel> implements SignOutFragmentNavigator {
 
-    private static final String TAG = "SignOutFragment";
+    private static final String TAG = SignOutFragment.class.getSimpleName();
 
-    private FirebaseAuth.AuthStateListener mAuthListener;
+    @Inject
+    @Named("SignOutFragment")
+    ViewModelProvider.Factory mViewModelFactory;
 
-    private ProgressBar mProgressBar;
-    private TextView tvSignout, tvSigningOut;
+    private FragmentSignoutBinding mFragmentSignoutBinding;
 
-    @Nullable
+    private SignOutFragmentViewModel mSignOutFragmentViewModel;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_signout, container, false);
-        tvSignout = view.findViewById(R.id.tvConfirmSignout);
-        mProgressBar = view.findViewById(R.id.progressBar);
-        tvSigningOut = view.findViewById(R.id.tvSigningOut);
-        Button btnConfirmSignout = view.findViewById(R.id.btnConfirmSignout);
+    public int getBindingVariable() {
+        return BR.viewModel;
+    }
 
-        mProgressBar.setVisibility(View.GONE);
-        tvSigningOut.setVisibility(View.GONE);
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_signout;
+    }
 
-        setupFirebaseAuth();
+    @Override
+    public SignOutFragmentViewModel getViewModel() {
+        mSignOutFragmentViewModel = ViewModelProviders.of(this, mViewModelFactory).get(SignOutFragmentViewModel.class);
+        return mSignOutFragmentViewModel;
+    }
 
-        btnConfirmSignout.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mSignOutFragmentViewModel.setNavigator(this);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mFragmentSignoutBinding = getViewDataBinding();
+        setUp();
+    }
+
+    private void setUp() {
+        mFragmentSignoutBinding.progressBar.setVisibility(View.GONE);
+        mFragmentSignoutBinding.tvSigningOut.setVisibility(View.GONE);
+
+        mFragmentSignoutBinding.btnConfirmSignout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: attempting to sign out.");
-                mProgressBar.setVisibility(View.VISIBLE);
-                tvSigningOut.setVisibility(View.VISIBLE);
-
-                getApplicationComponent().getFirebaseAuth().signOut();
+                mFragmentSignoutBinding.progressBar.setVisibility(View.VISIBLE);
+                mFragmentSignoutBinding.tvSigningOut.setVisibility(View.VISIBLE);
+                mSignOutFragmentViewModel.signOutUser();
             }
         });
-
-        return view;
     }
 
-    /**
-     ------------------------------------ Firebase ---------------------------------------------
-     */
-
-
-    /**
-     * Setup the firebase auth object
-     */
-    private void setupFirebaseAuth() {
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-
-                    Log.d(TAG, "onAuthStateChanged: navigating back to login screen.");
-                    Intent intent = new Intent(getApplicationComponent().getContext(), LoginActivity.class);
-                    intent.putExtra(getString(R.string.from_signup), true);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    ((AppCompatActivity)getActivityComponent().getContext()).finish();
-                }
-            }
-        };
+    @Override
+    public void redirectToLogin() {
+        Intent intent = new Intent(getContext(), LoginActivity.class);
+        intent.putExtra(getString(R.string.from_signup), true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        ((AppCompatActivity) getContext()).finish();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        getApplicationComponent().getFirebaseAuth().addAuthStateListener(mAuthListener);
+        mSignOutFragmentViewModel.startFireBaseAuth();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mAuthListener != null) {
-            getApplicationComponent().getFirebaseAuth().removeAuthStateListener(mAuthListener);
-        }
+        mSignOutFragmentViewModel.stopFireBaseAuth();
     }
+
+
 }

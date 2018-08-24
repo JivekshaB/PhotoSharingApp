@@ -64,16 +64,16 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
     private int mLayoutResource;
     private Context mContext;
     private DatabaseReference mReference;
-    private String currentUsername = "";
     private ImageLoader mUniversalImageLoader;
+    private String currentUsername = "";
 
-    public MainFeedListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<Photo> objects, ImageLoader imageLoader) {
+    public MainFeedListAdapter(@NonNull Context context, ImageLoader imageLoader, @LayoutRes int resource, @NonNull List<Photo> objects) {
         super(context, resource, objects);
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mLayoutResource = resource;
+        this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.mLayoutResource = resource;
         this.mContext = context;
-        mReference = FirebaseDatabase.getInstance().getReference();
-        mUniversalImageLoader = imageLoader;
+        this.mUniversalImageLoader = imageLoader;
+        this.mReference = FirebaseDatabase.getInstance().getReference();
     }
 
     static class ViewHolder {

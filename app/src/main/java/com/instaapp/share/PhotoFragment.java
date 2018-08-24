@@ -1,25 +1,26 @@
 package com.instaapp.share;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
-import com.instaapp.BaseFragment;
+import com.instaapp.BR;
 import com.instaapp.R;
+import com.instaapp.base.BaseFragment;
+import com.instaapp.databinding.FragmentPhotoBinding;
 import com.instaapp.profile.AccountSettingsActivity;
 
 import java.io.File;
@@ -28,20 +29,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 
 /**
  * Created by User on 5/28/2017.
  */
 
-public class PhotoFragment extends BaseFragment {
-    private static final String TAG = "PhotoFragment";
+public class PhotoFragment extends BaseFragment<FragmentPhotoBinding, PhotoFragmentViewModel> implements PhotoFragmentNavigator {
 
-    //constant
-    private static final int PHOTO_FRAGMENT_NUM = 1;
-    private static final int GALLERY_FRAGMENT_NUM = 2;
-    private static final int CAMERA_REQUEST_CODE = 5;
+    private static final String TAG = PhotoFragment.class.getSimpleName();
 
-    private CameraView mCameraView;
     private int mCurrentFlash;
 
     private static final int[] FLASH_OPTIONS = {
@@ -62,49 +61,78 @@ public class PhotoFragment extends BaseFragment {
             R.string.flash_on,
     };
 
-    @Nullable
+    @Inject
+    @Named("PhotoFragment")
+    ViewModelProvider.Factory mViewModelFactory;
+
+    private FragmentPhotoBinding mFragmentPhotoBinding;
+
+    private PhotoFragmentViewModel mPhotoFragmentViewModel;
+
     @Override
-    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_photo, container, false);
-        Log.d(TAG, "onCreateView: started.");
+    public int getBindingVariable() {
+        return BR.viewModel;
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_photo;
+    }
+
+    @Override
+    public PhotoFragmentViewModel getViewModel() {
+        mPhotoFragmentViewModel = ViewModelProviders.of(this, mViewModelFactory).get(PhotoFragmentViewModel.class);
+        return mPhotoFragmentViewModel;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPhotoFragmentViewModel.setNavigator(this);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mFragmentPhotoBinding = getViewDataBinding();
+        setUp();
+    }
+
+
+    private void setUp() {
         setHasOptionsMenu(true);
-        mCameraView = view.findViewById(R.id.camera);
-        if (mCameraView != null) {
-            mCameraView.addCallback(mCallback);
+        if (null != mFragmentPhotoBinding.camera) {
+            mFragmentPhotoBinding.camera.addCallback(mCallback);
         }
-        FloatingActionButton fab = view.findViewById(R.id.take_picture);
-        if (fab != null) {
-            fab.setOnClickListener(new View.OnClickListener() {
+        if (mFragmentPhotoBinding.takePicture != null) {
+            mFragmentPhotoBinding.takePicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mCameraView != null) {
-                        mCameraView.takePicture();
+                    if (null != mFragmentPhotoBinding.camera) {
+                        mFragmentPhotoBinding.camera.takePicture();
                     }
                 }
             });
         }
-        Toolbar toolbar = view.findViewById(R.id.toolbar);
-        ((AppCompatActivity) getActivityComponent().getContext()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity) getActivityComponent().getContext()).getSupportActionBar();
+        getBaseActivity().setSupportActionBar(mFragmentPhotoBinding.toolbar);
+        ActionBar actionBar = ((AppCompatActivity) getContext()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
         }
-        return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mCameraView.start();
+        mFragmentPhotoBinding.camera.start();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mCameraView.stop();
+        mFragmentPhotoBinding.camera.stop();
 
     }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -116,17 +144,17 @@ public class PhotoFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.switch_flash:
-                if (mCameraView != null) {
+                if (null != mFragmentPhotoBinding.camera) {
                     mCurrentFlash = (mCurrentFlash + 1) % FLASH_OPTIONS.length;
                     item.setTitle(FLASH_TITLES[mCurrentFlash]);
                     item.setIcon(FLASH_ICONS[mCurrentFlash]);
-                    mCameraView.setFlash(FLASH_OPTIONS[mCurrentFlash]);
+                    mFragmentPhotoBinding.camera.setFlash(FLASH_OPTIONS[mCurrentFlash]);
                 }
                 return true;
             case R.id.switch_camera:
-                if (mCameraView != null) {
-                    int facing = mCameraView.getFacing();
-                    mCameraView.setFacing(facing == CameraView.FACING_FRONT ?
+                if (mFragmentPhotoBinding.camera != null) {
+                    int facing = mFragmentPhotoBinding.camera.getFacing();
+                    mFragmentPhotoBinding.camera.setFacing(facing == CameraView.FACING_FRONT ?
                             CameraView.FACING_BACK : CameraView.FACING_FRONT);
                 }
                 return true;
@@ -136,7 +164,7 @@ public class PhotoFragment extends BaseFragment {
 
 
     private boolean isRootTask() {
-        return ((ShareActivity) getActivityComponent().getContext()).getTask() == 0;
+        return ((ShareActivity) getContext()).getTask() == 0;
     }
 
     private CameraView.Callback mCallback
@@ -177,16 +205,16 @@ public class PhotoFragment extends BaseFragment {
                         cameraView.stop();
                     try {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
-                        Intent intent = new Intent(getApplicationComponent().getContext(), NextActivity.class);
+                        Intent intent = new Intent(getContext(), NextActivity.class);
                         intent.putExtra(getString(R.string.selected_bitmap), destination.getAbsolutePath());
-                        (getActivityComponent().getContext()).startActivity(intent);
+                        getContext().startActivity(intent);
                     } catch (NullPointerException e) {
                         Log.d(TAG, "onActivityResult: NullPointerException: " + e.getMessage());
                     }
                 } else {
                     try {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
-                        Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
+                        Intent intent = new Intent(getContext(), AccountSettingsActivity.class);
                         intent.putExtra(getString(R.string.selected_bitmap), destination.getAbsolutePath());
                         intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
                         startActivity(intent);
@@ -195,7 +223,7 @@ public class PhotoFragment extends BaseFragment {
                     }
                 }
 
-                ((AppCompatActivity)getActivityComponent().getContext()).finish();
+                ((AppCompatActivity) getContext()).finish();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -208,36 +236,3 @@ public class PhotoFragment extends BaseFragment {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

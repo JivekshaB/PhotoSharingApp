@@ -38,48 +38,56 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
     //Design library for coordinator layout
     implementation 'com.android.support:design:27.1.1'
     //BottomNavigationViewEx library
-    compile 'com.github.ittianyu:BottomNavigationViewEx:1.2.4'
+    implementation 'com.github.ittianyu:BottomNavigationViewEx:1.2.4'
     //Circle ImageView
-    compile 'de.hdodenhof:circleimageview:2.1.0'
+    implementation 'de.hdodenhof:circleimageview:2.1.0'
     //Universal image loader
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     //firebase authentication
-    compile 'com.google.firebase:firebase-auth:10.2.6'
+    implementation 'com.google.firebase:firebase-auth:10.2.6'
     //firebase database
-    compile 'com.google.firebase:firebase-core:10.2.6'
+    implementation 'com.google.firebase:firebase-core:10.2.6'
     //firebase storage
-    compile 'com.google.firebase:firebase-database:10.2.6'
+    implementation 'com.google.firebase:firebase-database:10.2.6'
     //firebase core
-    compile 'com.google.firebase:firebase-storage:10.2.6'
+    implementation 'com.google.firebase:firebase-storage:10.2.6'
     //exifInterface support
-    compile 'com.android.support:exifinterface:27.1.1'
+    implementation 'com.android.support:exifinterface:27.1.1'
     //design library for Coordinator Layout
-    compile 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
     //cardview
-    compile 'com.android.support:cardview-v7:27.1.1'
+    implementation 'com.android.support:cardview-v7:27.1.1'
     //recyclerview
-    compile 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
     //elastic header
-    compile 'com.github.eschao:android-ElasticListView:v1.0'
+    implementation 'com.github.eschao:android-ElasticListView:v1.0'
     //CameraView
     implementation 'com.github.google:cameraview:-SNAPSHOT'
-
-    compile "com.google.dagger:dagger:2.8"
-    annotationProcessor "com.google.dagger:dagger-compiler:2.8"
-    compile('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
+    //Dagger
+    implementation 'com.google.dagger:dagger:2.15'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.15'
+    implementation 'com.google.dagger:dagger-android-support:2.15'
+    //MVVM helper
+    implementation 'com.github.stfalcon:androidmvvmhelper:0.4'
+    //Crashlytics
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.4@aar') {
         transitive = true;
     }
+    // View Model
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
 
+    androidTestCompile 'org.mockito:mockito-android:2.13.0'
 
 }
 

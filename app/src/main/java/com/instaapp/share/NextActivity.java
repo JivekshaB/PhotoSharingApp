@@ -1,66 +1,70 @@
 package com.instaapp.share;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.instaapp.BaseActivity;
+import com.instaapp.BR;
 import com.instaapp.R;
-import com.instaapp.utils.FirebaseMethods;
+import com.instaapp.base.BaseActivity;
+import com.instaapp.databinding.ActivityNextBinding;
 import com.instaapp.utils.UniversalImageLoader;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 
 /**
  * Created by User on 7/24/2017.
  */
 
-public class NextActivity extends BaseActivity {
+public class NextActivity extends BaseActivity<ActivityNextBinding, NextActivityViewModel> implements NextActivityNavigator {
 
-    private static final String TAG = "NextActivity";
+    private static final String TAG = NextActivity.class.getSimpleName();
 
-    //firebase
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference myRef;
-    private FirebaseMethods mFirebaseMethods;
-
-    //widgets
-    private EditText mCaption;
-
-    //vars
-    private String mAppend = "file:/";
-    private int imageCount = 0;
     private String imgUrl;
-    private Bitmap bitmap;
     private Intent intent;
+
+    @Inject
+    @Named("NextActivity")
+    ViewModelProvider.Factory mViewModelFactory;
+
+    private ActivityNextBinding mActivityNextBinding;
+    private NextActivityViewModel mNextActivityViewModel;
+
+    @Override
+    public int getBindingVariable() {
+        return BR.viewModel;
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_next;
+    }
+
+    @Override
+    public NextActivityViewModel getViewModel() {
+        mNextActivityViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NextActivityViewModel.class);
+        return mNextActivityViewModel;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_next);
-        mFirebaseMethods = new FirebaseMethods(NextActivity.this);
-        mCaption = (EditText) findViewById(R.id.caption);
+        Log.d(TAG, "onCreate: started AccountSettings");
+        mNextActivityViewModel.setNavigator(this);
+        setUp();
+    }
 
-        setupFirebaseAuth();
-
-        ImageView backArrow = findViewById(R.id.ivBackArrow);
-        backArrow.setOnClickListener(new View.OnClickListener() {
+    private void setUp() {
+        mActivityNextBinding = getViewDataBinding();
+        mNextActivityViewModel.init();
+        mActivityNextBinding.topNextToolBar.ivBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: closing the activity");
@@ -68,22 +72,20 @@ public class NextActivity extends BaseActivity {
             }
         });
 
-
-        TextView share = findViewById(R.id.tvShare);
-        share.setOnClickListener(new View.OnClickListener() {
+        mActivityNextBinding.topNextToolBar.tvShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating to the final share screen.");
                 //upload the image to firebase
                 Toast.makeText(NextActivity.this, "Attempting to upload new photo", Toast.LENGTH_SHORT).show();
-                String caption = mCaption.getText().toString();
+                String caption = mActivityNextBinding.caption.getText().toString();
 
                 if (intent.hasExtra(getString(R.string.selected_image))) {
                     imgUrl = intent.getStringExtra(getString(R.string.selected_image));
-                    mFirebaseMethods.uploadNewPhoto(getString(R.string.new_photo), caption, imageCount, imgUrl, null);
+                    mNextActivityViewModel.getFirebaseMethods().uploadNewPhoto(NextActivity.this, getString(R.string.new_photo), caption, mNextActivityViewModel.getImageCount(), imgUrl, null);
                 } else if (intent.hasExtra(getString(R.string.selected_bitmap))) {
                     imgUrl = intent.getStringExtra(getString(R.string.selected_bitmap));
-                    mFirebaseMethods.uploadNewPhoto(getString(R.string.new_photo), caption, imageCount, imgUrl, null);
+                    mNextActivityViewModel.getFirebaseMethods().uploadNewPhoto(NextActivity.this, getString(R.string.new_photo), caption, mNextActivityViewModel.getImageCount(), imgUrl, null);
                 }
                 finish();
             }
@@ -92,105 +94,32 @@ public class NextActivity extends BaseActivity {
         setImage();
     }
 
-    private void someMethod() {
-        /*
-            Step 1)
-            Create a data model for Photos
 
-            Step 2)
-            Add properties to the Photo Objects (caption, date, imageUrl, photo_id, tags, user_id)
-
-            Step 3)
-            Count the number of photos that the user already has.
-
-            Step 4)
-            a) Upload the photo to Firebase Storage
-            b) insert into 'photos' node
-            c) insert into 'user_photos' node
-
-         */
-
-    }
-
-
-    /**
-     * gets the image url from the incoming intent and displays the chosen image
-     */
     private void setImage() {
         intent = getIntent();
-        ImageView image = (ImageView) findViewById(R.id.imageShare);
-
+        String mAppend = "file:/";
         if (intent.hasExtra(getString(R.string.selected_image))) {
             imgUrl = intent.getStringExtra(getString(R.string.selected_image));
             Log.d(TAG, "setImage: got new image url: " + imgUrl);
-            UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(), imgUrl, image, null, mAppend);
+            UniversalImageLoader.setImage(getImageLoader(), imgUrl, mActivityNextBinding.imageShare, null, mAppend);
         } else if (intent.hasExtra(getString(R.string.selected_bitmap))) {
             imgUrl = intent.getStringExtra(getString(R.string.selected_bitmap));
             Log.d(TAG, "setImage: got new bitmap");
-            UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(), imgUrl, image, null, mAppend);
+            UniversalImageLoader.setImage(getImageLoader(), imgUrl, mActivityNextBinding.imageShare, null, mAppend);
         }
-    }
-
-     /*
-     ------------------------------------ Firebase ---------------------------------------------
-     */
-
-    /**
-     * Setup the firebase auth object
-     */
-    private void setupFirebaseAuth() {
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
-        mAuth = FirebaseAuth.getInstance();
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        myRef = mFirebaseDatabase.getReference();
-        Log.d(TAG, "onDataChange: image count: " + imageCount);
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-
-
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
-            }
-        };
-
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                imageCount = mFirebaseMethods.getImageCount(dataSnapshot);
-                Log.d(TAG, "onDataChange: image count: " + imageCount);
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
 
     @Override
     public void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+        mNextActivityViewModel.startFireBaseAuth();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
+        mNextActivityViewModel.stopFireBaseAuth();
+
     }
 }

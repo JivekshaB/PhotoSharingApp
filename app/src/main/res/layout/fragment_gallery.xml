@@ -1,62 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.share.GalleryFragmentViewModel" />
+
+    </data>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/relLayout1">
-
-        <!-- gallery toolbar -->
-        <include layout="@layout/snippet_top_gallerytoolbar"/>
-
-    </RelativeLayout>
-
-
-    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="100"
-        android:orientation="vertical"
-        android:layout_below="@id/relLayout1">
+        android:layout_height="match_parent">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="60">
+            android:id="@+id/relLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/galleryImageView"
-                android:scaleType="centerCrop"/>
-
-            <ProgressBar
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:id="@+id/progressBar"
-                android:layout_centerInParent="true"/>
+            <!-- gallery toolbar -->
+            <include
+                android:id="@+id/layoutGalleryTopBar"
+                layout="@layout/snippet_top_gallerytoolbar" />
 
         </RelativeLayout>
 
-        <GridView
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="40"
-            android:id="@+id/gridView"
-            android:numColumns="3"
-            android:verticalSpacing="1.5dp"
-            android:horizontalSpacing="1.5dp"
-            android:stretchMode="none"
-            android:gravity="center"
-            android:layout_marginTop="1dp">
+            android:layout_height="match_parent"
+            android:layout_below="@id/relLayout1"
+            android:orientation="vertical"
+            android:weightSum="100">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="60">
 
 
+                <ImageView
+                    android:id="@+id/galleryImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
 
-        </GridView>
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_centerInParent="true" />
 
-    </LinearLayout>
+            </RelativeLayout>
 
-</RelativeLayout>
+            <GridView
+                android:id="@+id/gridView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="1dp"
+                android:layout_weight="40"
+                android:gravity="center"
+                android:horizontalSpacing="1.5dp"
+                android:numColumns="3"
+                android:stretchMode="none"
+                android:verticalSpacing="1.5dp">
+
+
+            </GridView>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>

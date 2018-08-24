@@ -1,103 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".login.RegisterActivity">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingTop="55dp"
-    android:paddingLeft="25dp"
-    android:paddingRight="25dp"
-    >
+    <data>
 
-    <TextView
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.login.RegistrationViewModel" />
+
+    </data>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="REGISTER A NEW ACCOUNT"
-        android:textSize="20sp"
-        android:textColor="@color/black"
-        android:gravity="center_horizontal"
-        android:layout_marginBottom="40dp"/>
+        android:layout_height="match_parent">
 
-
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
-        <EditText
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:hint="Email"
-            android:id="@+id/input_email"/>
+            android:orientation="vertical"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:paddingTop="55dp">
 
-    </android.support.design.widget.TextInputLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:gravity="center_horizontal"
+                android:text="REGISTER A NEW ACCOUNT"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
 
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
-        <EditText
-            android:layout_width="match_parent"
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/input_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress" />
+
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/input_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Full Name"
+                    android:inputType="text" />
+
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/input_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Password"
+                    android:inputType="textPassword" />
+
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btn_register"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="25dp"
+                android:layout_marginTop="25dp"
+                android:background="@drawable/white_rounded_button"
+                android:padding="12dp"
+                android:text="Register" />
+
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:id="@+id/loadingPleaseWait"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:hint="Full Name"
-            android:id="@+id/input_username"/>
+            android:layout_alignBottom="@+id/progressBar"
+            android:layout_alignLeft="@+id/progressBar"
+            android:layout_alignRight="@+id/progressBar"
+            android:text="Please wait..."
+            android:textColor="@color/black"
+            android:textSize="20sp" />
 
-    </android.support.design.widget.TextInputLayout>
-
-
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="Password"
-            android:id="@+id/input_password"/>
-
-    </android.support.design.widget.TextInputLayout>
-
-
-    <android.support.v7.widget.AppCompatButton
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="25dp"
-        android:layout_marginTop="25dp"
-        android:text="Register"
-        android:id="@+id/btn_register"
-        android:padding="12dp"
-        android:background="@drawable/white_rounded_button"/>
-
-
-</LinearLayout>
-
-    <ProgressBar
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:id="@+id/progressBar"
-        android:layout_centerInParent="true"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Please wait..."
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:layout_alignBottom="@+id/progressBar"
-        android:layout_alignRight="@+id/progressBar"
-        android:layout_alignLeft="@+id/progressBar"
-        android:id="@+id/loadingPleaseWait"/>
-
-</RelativeLayout>
+    </RelativeLayout>
+</layout>
 
 
 

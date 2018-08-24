@@ -1,46 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    >
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/white_grey_border_bottom"
-        >
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.v7.widget.Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/profileToolBar">
-        
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent">
-            
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_centerVertical="true"
-                android:id="@+id/backArrow"
-                android:src="@drawable/ic_back"/>
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.profile.ViewPostFragmentViewModel" />
+
+    </data>
+
+    <merge
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/white_grey_border_bottom">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/profileToolBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/backArrow"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_back" />
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:textSize="20sp"
-                android:layout_toRightOf="@+id/backArrow"
-                android:layout_marginLeft="30dp"
-                android:text="Photo"
-                android:textColor="@color/black"
-                android:id="@+id/tvBackLabel"/>
+                    <TextView
+                        android:id="@+id/tvBackLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="30dp"
+                        android:layout_toRightOf="@+id/backArrow"
+                        android:text="Photo"
+                        android:textColor="@color/black"
+                        android:textSize="20sp" />
 
 
-        </RelativeLayout>
+                </RelativeLayout>
 
-        </android.support.v7.widget.Toolbar>
-    
-    </android.support.design.widget.AppBarLayout>
+            </android.support.v7.widget.Toolbar>
 
-</merge>
+        </android.support.design.widget.AppBarLayout>
+
+    </merge>
+
+</layout>

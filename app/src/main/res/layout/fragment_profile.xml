@@ -1,35 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.profile.ProfileFragmentViewModel" />
+
+    </data>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/relLayout1">
+        android:layout_height="match_parent">
 
-        <include layout="@layout/snippet_top_profilebar"/>
+        <RelativeLayout
+            android:id="@+id/relLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/layoutTopProfileBar"
+                layout="@layout/snippet_top_profilebar" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/relLayout1">
+
+            <include
+                android:id="@+id/layoutCenterProfile"
+                layout="@layout/layout_center_profile" />
+
+        </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/profileProgressBar"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="100dp" />
+
+        <include
+            android:id="@+id/layoutBottomNav"
+            layout="@layout/layout_bottom_navigation_view" />
 
     </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/relLayout1"
-        android:id="@+id/relLayout2">
-
-        <include layout="@layout/layout_center_profile"/>
-
-    </RelativeLayout>
-
-    <ProgressBar
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:id="@+id/profileProgressBar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"/>
-
-    <include layout="@layout/layout_bottom_navigation_view"/>
-
-</RelativeLayout>
+</layout>

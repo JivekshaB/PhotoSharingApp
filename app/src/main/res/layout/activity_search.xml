@@ -1,32 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-    android:background="@color/white">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".profile.AccountSettingsActivity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.instaapp.search.SearchActivityViewModel" />
+
+    </data>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/relLayout1">
+            android:layout_height="wrap_content">
 
-            <include layout="@layout/snippet_searchbar"/>
+            <RelativeLayout
+                android:id="@+id/relLayout1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include
+                    android:id="@+id/layoutSnippetSearch"
+                    layout="@layout/snippet_searchbar" />
+            </RelativeLayout>
+
+
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/relLayout1">
+
+            </ListView>
+
         </RelativeLayout>
 
-
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/listView"
-            android:layout_below="@+id/relLayout1">
-
-        </ListView>
+        <include
+            android:id="@+id/layoutBottomNav"
+            layout="@layout/layout_bottom_navigation_view" />
 
     </RelativeLayout>
-
-    <include layout="@layout/layout_bottom_navigation_view"/>
-
-</RelativeLayout>
+</layout>

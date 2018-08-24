@@ -1,5 +1,7 @@
 package com.instaapp.profile;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,38 +14,70 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 
-import com.instaapp.BaseActivity;
+import com.instaapp.BR;
 import com.instaapp.R;
 import com.instaapp.adapter.SectionsStatePagerAdapter;
+import com.instaapp.base.BaseActivity;
+import com.instaapp.databinding.ActivityAccountsettingsBinding;
 import com.instaapp.utils.BottomNavigationViewHelper;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 /**
  * Created by jiveksha on 8/9/18.
  */
 
-public class AccountSettingsActivity extends BaseActivity {
+public class AccountSettingsActivity extends BaseActivity<ActivityAccountsettingsBinding, AccountSettingsViewModel> implements AccountSettingsNavigator {
 
 
     private static final String TAG = AccountSettingsActivity.class.getSimpleName();
 
     private static final int ACTIVITY_NUM = 3;
 
+    @Inject
+    @Named("AccountSettings")
+    ViewModelProvider.Factory mViewModelFactory;
+
+    private ActivityAccountsettingsBinding mActivityAccountSettingsBinding;
+
+    private AccountSettingsViewModel mAccountSettingsViewModel;
+
     public SectionsStatePagerAdapter mSectionsStatePagerAdapter;
     private ViewPager mViewPager;
-    private RelativeLayout mRelativeLayout;
+
+    @Override
+    public int getBindingVariable() {
+        return BR.viewModel;
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_accountsettings;
+    }
+
+    @Override
+    public AccountSettingsViewModel getViewModel() {
+        mAccountSettingsViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AccountSettingsViewModel.class);
+        return mAccountSettingsViewModel;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_accountsettings);
         Log.d(TAG, "onCreate: started AccountSettings");
+        mAccountSettingsViewModel.setNavigator(this);
+        setUp();
+
+    }
+
+    private void setUp() {
+        mActivityAccountSettingsBinding = getViewDataBinding();
         mViewPager = findViewById(R.id.viewpager_container);
-        mRelativeLayout = findViewById(R.id.relLayout1);
 
         setupSettingsList();
         setupBottomNavigationView();
@@ -75,11 +109,11 @@ public class AccountSettingsActivity extends BaseActivity {
 
                 if (intent.hasExtra(getString(R.string.selected_image))) {
                     //set the new profile picture
-                    getFirebaseMethods().uploadNewPhoto(getString(R.string.profile_photo), null, 0,
+                    mAccountSettingsViewModel.getFirebaseMethods().uploadNewPhoto(AccountSettingsActivity.this, getString(R.string.profile_photo), null, 0,
                             intent.getStringExtra(getString(R.string.selected_image)), null);
                 } else if (intent.hasExtra(getString(R.string.selected_bitmap))) {
                     //set the new profile picture
-                    getFirebaseMethods().uploadNewPhoto(getString(R.string.profile_photo), null, 0,
+                    mAccountSettingsViewModel.getFirebaseMethods().uploadNewPhoto(AccountSettingsActivity.this, getString(R.string.profile_photo), null, 0,
                             intent.getStringExtra(getString(R.string.selected_bitmap)), null);
                 }
 
@@ -101,21 +135,21 @@ public class AccountSettingsActivity extends BaseActivity {
     }
 
     public void setViewPager(int fragmentNumber) {
-        mRelativeLayout.setVisibility(View.GONE);
         Log.d(TAG, "setViewPager: navigating to fragment #: " + fragmentNumber);
+        mActivityAccountSettingsBinding.relLayout1.setVisibility(View.GONE);
         mViewPager.setAdapter(mSectionsStatePagerAdapter);
         mViewPager.setCurrentItem(fragmentNumber);
     }
 
     private void setupSettingsList() {
         Log.d(TAG, "setupSettingsList: initializing 'Account Settings' list.");
-        ListView listView = (ListView) findViewById(R.id.lvAccountSettings);
+        ListView listView = findViewById(R.id.lvAccountSettings);
 
         ArrayList<String> options = new ArrayList<>();
         options.add(getString(R.string.edit_profile_fragment)); //fragment 0
         options.add(getString(R.string.sign_out_fragment)); //fragment 1
 
-        ArrayAdapter adapter = new ArrayAdapter(getActivityContext(), android.R.layout.simple_list_item_1, options);
+        ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, options);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -135,9 +169,10 @@ public class AccountSettingsActivity extends BaseActivity {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewEx bottomNavigationViewEx = (BottomNavigationViewEx) findViewById(R.id.bottomNavViewBar);
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationViewEx);
-        BottomNavigationViewHelper.enableNavigation(getActivityContext(), this, bottomNavigationViewEx);
+        BottomNavigationViewHelper.enableNavigation(getApplicationContext(), this, bottomNavigationViewEx);
         Menu menu = bottomNavigationViewEx.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
     }
+
 }

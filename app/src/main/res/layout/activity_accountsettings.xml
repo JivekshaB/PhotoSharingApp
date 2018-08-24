@@ -1,40 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".profile.AccountSettingsActivity">
 
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    <data>
 
-    <include layout="@layout/layout_center_viewpager"/>
+        <import type="android.view.View" />
 
-    <RelativeLayout
+        <variable
+            name="viewModel"
+            type="com.instaapp.profile.AccountSettingsViewModel" />
+
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/relLayout1">
+        android:layout_height="match_parent">
+
+        <include layout="@layout/layout_center_viewpager" />
 
         <RelativeLayout
+            android:id="@+id/relLayout1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/relLayout2">
+            android:layout_height="match_parent">
 
-            <include layout="@layout/snippet_top_accountsettingtoolbar"/>
+            <RelativeLayout
+                android:id="@+id/relLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include layout="@layout/snippet_top_accountsettingtoolbar" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relLayout3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/relLayout2"
+                android:layout_marginBottom="50dp">
+
+                <include layout="@layout/layout_center_accountsettings" />
+
+            </RelativeLayout>
+
+
+            <include layout="@layout/layout_bottom_navigation_view" />
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/relLayout3"
-            android:layout_below="@+id/relLayout2"
-            android:layout_marginBottom="50dp">
-
-            <include layout="@layout/layout_center_accountsettings"/>
-
-        </RelativeLayout>
-
-
-        <include layout="@layout/layout_bottom_navigation_view"/>
-
-    </RelativeLayout>
-
-</android.support.design.widget.CoordinatorLayout>
+    </android.support.design.widget.CoordinatorLayout>
+</layout>

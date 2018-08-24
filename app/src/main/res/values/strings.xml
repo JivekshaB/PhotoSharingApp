@@ -58,7 +58,11 @@
     <string name="profile_followers_label">Followers</string>
     <string name="profile_following_label">Following</string>
     <string name="profile_edit_label">Edit your profile</string>
-
+    <string name="profile_signup_success_label">Signup successful. Sending verification email.</string>
+    <string name="profile_email_already_in_use">That email is already in use</string>
+    <string name="profile_email_updated">email updated</string>
+    <string name="profile_save_username">saved username.</string>
+    <string name="profile_username_exists">That username already exists.</string>
 
     <!-- photo types -->
     <string name="new_photo">new_photo</string>

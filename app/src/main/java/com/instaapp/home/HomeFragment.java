@@ -1,45 +1,57 @@
 package com.instaapp.home;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.eschao.android.widget.elasticlistview.ElasticListView;
 import com.eschao.android.widget.elasticlistview.LoadFooter;
 import com.eschao.android.widget.elasticlistview.OnLoadListener;
 import com.eschao.android.widget.elasticlistview.OnUpdateListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-import com.instaapp.BaseFragment;
+import com.instaapp.BR;
 import com.instaapp.R;
 import com.instaapp.adapter.MainFeedListAdapter;
-import com.instaapp.models.Comment;
+import com.instaapp.base.BaseFragment;
+import com.instaapp.databinding.FragmentHomeBinding;
 import com.instaapp.models.Photo;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Created by jiveksha on 8/7/18.
  */
 
-public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLoadListener {
+public class HomeFragment extends BaseFragment<FragmentHomeBinding, HomeFragmentViewModel>
+        implements HomeFragmentNavigator, OnUpdateListener, OnLoadListener {
 
     private static final String TAG = HomeFragment.class.getSimpleName();
+
+    @Inject
+    @Named("HomeFragment")
+    ViewModelProvider.Factory mViewModelFactory;
+
+    private FragmentHomeBinding mFragmentHomeBinding;
+    private HomeFragmentViewModel mHomeFragmentViewModel;
+
+    private ArrayList<Photo> mPaginatedPhotos;
+    private ArrayList<Photo> mPhotos;
+
+    private MainFeedListAdapter adapter;
+    private int resultsCount = 0;
 
     @Override
     public void onUpdate() {
         Log.d(TAG, "ElasticListView: updating list view...");
-        getFollowing();
+        mHomeFragmentViewModel.getFollowing();
     }
 
 
@@ -51,24 +63,43 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
     }
 
 
-    //vars
-    private ArrayList<Photo> mPhotos;
-    private ArrayList<Photo> mPaginatedPhotos;
-    private ArrayList<String> mFollowing;
     private ElasticListView mListView;
-    private MainFeedListAdapter adapter;
-    private int resultsCount = 0;
 
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-        mListView = view.findViewById(R.id.listView);
-        initListViewRefresh();
-        getFollowing();
+    public int getBindingVariable() {
+        return BR.viewModel;
+    }
 
-        return view;
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_home;
+    }
+
+    @Override
+    public HomeFragmentViewModel getViewModel() {
+        mHomeFragmentViewModel = ViewModelProviders.of(this, mViewModelFactory).get(HomeFragmentViewModel.class);
+        return mHomeFragmentViewModel;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mHomeFragmentViewModel.setNavigator(this);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mFragmentHomeBinding = getViewDataBinding();
+        setUp();
+    }
+
+    private void setUp() {
+        mListView = mFragmentHomeBinding.listView;
+        initListViewRefresh();
+        mHomeFragmentViewModel.getFollowing();
+
     }
 
     private void initListViewRefresh() {
@@ -80,122 +111,8 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
                 .setOnLoadListener(this);
     }
 
-
-    private void clearAll() {
-        if (mFollowing != null) {
-            mFollowing.clear();
-        }
-        if (mPhotos != null) {
-            mPhotos.clear();
-            if (adapter != null) {
-                adapter.clear();
-                adapter.notifyDataSetChanged();
-            }
-        }
-
-        if (mPaginatedPhotos != null) {
-            mPaginatedPhotos.clear();
-        }
-
-        mFollowing = new ArrayList<>();
-        mPhotos = new ArrayList<>();
-        mPaginatedPhotos = new ArrayList<>();
-    }
-
-    /**
-     * //     * Retrieve all user id's that current user is following
-     * //
-     */
-    private void getFollowing() {
-        Log.d(TAG, "getFollowing: searching for following");
-
-        clearAll();
-        //also add your own id to the list
-        mFollowing.add(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
-
-        Query query = getApplicationComponent().getFirebaseDatabase().getReference()
-                .child(getFragmentContext().getString(R.string.dbname_following))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "getFollowing: found user: " + singleSnapshot
-                            .child(getString(R.string.field_user_id)).getValue());
-
-                    mFollowing.add(singleSnapshot
-                            .child(getString(R.string.field_user_id)).getValue().toString());
-                }
-
-                getPhotos();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-        });
-
-    }
-
-    private void getPhotos() {
-        Log.d(TAG, "getPhotos: getting list of photos");
-
-        for (int i = 0; i < mFollowing.size(); i++) {
-            final int count = i;
-            Query query = getApplicationComponent().getFirebaseDatabase().getReference()
-                    .child(getFragmentContext().getString(R.string.dbname_user_photos))
-                    .child(mFollowing.get(i))
-                    .orderByChild(getString(R.string.field_user_id))
-                    .equalTo(mFollowing.get(i));
-            query.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-
-                        Photo newPhoto = new Photo();
-                        Map<String, Object> objectMap = (HashMap<String, Object>) singleSnapshot.getValue();
-
-                        newPhoto.setCaption(objectMap.get(getString(R.string.field_caption)).toString());
-                        newPhoto.setTags(objectMap.get(getString(R.string.field_tags)).toString());
-                        newPhoto.setPhoto_id(objectMap.get(getString(R.string.field_photo_id)).toString());
-                        newPhoto.setUser_id(objectMap.get(getString(R.string.field_user_id)).toString());
-                        newPhoto.setDate_created(objectMap.get(getString(R.string.field_date_created)).toString());
-                        newPhoto.setImage_path(objectMap.get(getString(R.string.field_image_path)).toString());
-
-                        Log.d(TAG, "getPhotos: photo: " + newPhoto.getPhoto_id());
-                        List<Comment> commentsList = new ArrayList<Comment>();
-                        for (DataSnapshot dSnapshot : singleSnapshot
-                                .child(getString(R.string.field_comments)).getChildren()) {
-                            Map<String, Object> object_map = (HashMap<String, Object>) dSnapshot.getValue();
-                            Comment comment = new Comment();
-                            comment.setUser_id(object_map.get(getString(R.string.field_user_id)).toString());
-                            comment.setComment(object_map.get(getString(R.string.field_comment)).toString());
-                            comment.setDate_created(object_map.get(getString(R.string.field_date_created)).toString());
-                            commentsList.add(comment);
-                        }
-                        newPhoto.setComments(commentsList);
-                        mPhotos.add(newPhoto);
-                    }
-                    if (count >= mFollowing.size() - 1) {
-                        //display the photos
-                        displayPhotos();
-                    }
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG, "onCancelled: query cancelled.");
-                }
-            });
-
-        }
-    }
-
     private void displayPhotos() {
-//        mPaginatedPhotos = new ArrayList<>();
+        mPhotos = mHomeFragmentViewModel.getUserPhotos();
         if (mPhotos != null) {
 
             try {
@@ -220,7 +137,8 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
                     Log.d(TAG, "displayPhotos: adding a photo to paginated list: " + mPhotos.get(i).getPhoto_id());
                 }
 
-                adapter = new MainFeedListAdapter(getFragmentContext(), R.layout.layout_mainfeed_listitem, mPaginatedPhotos, getApplicationComponent().getUniversalImageLoader());
+
+                adapter = new MainFeedListAdapter(getContext(), mHomeFragmentViewModel.getImageLoader(),R.layout.layout_mainfeed_listitem, mPaginatedPhotos);
                 mListView.setAdapter(adapter);
 
                 // Notify update is done
@@ -238,21 +156,19 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
         Log.d(TAG, "displayMorePhotos: displaying more photos");
 
         try {
-
-            if (mPhotos.size() > resultsCount && mPhotos.size() > 0) {
-
+            ArrayList<Photo> photos = mHomeFragmentViewModel.getUserPhotos();
+            if (photos.size() > resultsCount && photos.size() > 0) {
                 int iterations;
-                if (mPhotos.size() > (resultsCount + 10)) {
+                if (photos.size() > (resultsCount + 10)) {
                     Log.d(TAG, "displayMorePhotos: there are greater than 10 more photos");
                     iterations = 10;
                 } else {
                     Log.d(TAG, "displayMorePhotos: there is less than 10 more photos");
-                    iterations = mPhotos.size() - resultsCount;
+                    iterations = photos.size() - resultsCount;
                 }
-
                 //add the new photos to the paginated list
                 for (int i = resultsCount; i < resultsCount + iterations; i++) {
-                    mPaginatedPhotos.add(mPhotos.get(i));
+                    mPaginatedPhotos.add(photos.get(i));
                 }
 
                 resultsCount = resultsCount + iterations;
@@ -263,5 +179,37 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
         } catch (NullPointerException e) {
             Log.e(TAG, "displayPhotos: NullPointerException:" + e.getMessage());
         }
+    }
+
+    /**
+     * Display photos from
+     */
+    @Override
+    public void callDisplayPhotos() {
+        displayPhotos();
+    }
+
+    @Override
+    public String getStringValue(int id) {
+        return getString(id);
+    }
+
+    /**
+     * Clear all data from lists and adapter
+     */
+    @Override
+    public void refreshUi() {
+        if (adapter != null) {
+            adapter.clear();
+            adapter.notifyDataSetChanged();
+        }
+        if (mPaginatedPhotos != null) {
+            mPaginatedPhotos.clear();
+        }
+        if (mPhotos != null) {
+            mPhotos.clear();
+        }
+        mPhotos = new ArrayList<>();
+        mPaginatedPhotos = new ArrayList<>();
     }
 }
