@@ -3,8 +3,9 @@ package com.instaapp.profile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,13 +20,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.adapter.GridImageAdapter;
 import com.instaapp.models.Comment;
@@ -50,7 +51,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by User on 6/29/2017.
  */
 
-public class ViewProfileFragment extends BaseFragment {
+public class ViewProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
 
@@ -65,6 +66,9 @@ public class ViewProfileFragment extends BaseFragment {
     private static final int NUM_GRID_COLUMNS = 3;
 
     //firebase
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
 
 
@@ -76,6 +80,7 @@ public class ViewProfileFragment extends BaseFragment {
     private GridView gridView;
     private ImageView mBackArrow;
     private BottomNavigationViewEx bottomNavigationView;
+    private Context mContext;
     private TextView editProfile;
 
 
@@ -105,6 +110,7 @@ public class ViewProfileFragment extends BaseFragment {
         mUnfollow = (TextView) view.findViewById(R.id.unfollow);
         editProfile = (TextView) view.findViewById(R.id.textEditProfile);
         mBackArrow = (ImageView) view.findViewById(R.id.backArrow);
+        mContext = getActivity();
         Log.d(TAG, "onCreateView: stared.");
 
 
@@ -113,11 +119,13 @@ public class ViewProfileFragment extends BaseFragment {
             init();
         } catch (NullPointerException e) {
             Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage());
-            Toast.makeText(getFragmentContext(), "something went wrong", Toast.LENGTH_SHORT).show();
-            ((AppCompatActivity) getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
+            Toast.makeText(mContext, "something went wrong", Toast.LENGTH_SHORT).show();
+            getActivity().getSupportFragmentManager().popBackStack();
         }
 
         setupBottomNavigationView();
+        setupFirebaseAuth();
+
         isFollowing();
         getFollowingCount();
         getFollowersCount();
@@ -173,8 +181,8 @@ public class ViewProfileFragment extends BaseFragment {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating to " + getString(R.string.edit_profile_fragment));
-                Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
+                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
+                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
                 intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
                 startActivity(intent);
                 getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -391,7 +399,7 @@ public class ViewProfileFragment extends BaseFragment {
         for (int i = 0; i < photos.size(); i++) {
             imgUrls.add(photos.get(i).getImage_path());
         }
-        GridImageAdapter adapter = new GridImageAdapter(getFragmentContext(), R.layout.layout_grid_imageview,
+        GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview,
                 "", imgUrls);
         gridView.setAdapter(adapter);
 
@@ -417,7 +425,7 @@ public class ViewProfileFragment extends BaseFragment {
     @Override
     public void onAttach(Context context) {
         try {
-            mOnGridImageSelectedListener = (OnGridImageSelectedListener) (getActivityComponent().getContext());
+            mOnGridImageSelectedListener = (OnGridImageSelectedListener) getActivity();
         } catch (ClassCastException e) {
             Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage());
         }
@@ -433,7 +441,7 @@ public class ViewProfileFragment extends BaseFragment {
         //User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
 
-        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(), settings.getProfile_photo(), mProfilePhoto, null, "");
+        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
 
         mDisplayName.setText(settings.getDisplay_name());
         mUsername.setText(settings.getUsername());
@@ -448,8 +456,8 @@ public class ViewProfileFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back");
-                ((AppCompatActivity) getActivityComponent().getContext()).getSupportFragmentManager().popBackStack();
-                ((AppCompatActivity) getActivityComponent().getContext()).finish();
+                getActivity().getSupportFragmentManager().popBackStack();
+                getActivity().finish();
             }
         });
 
@@ -462,10 +470,57 @@ public class ViewProfileFragment extends BaseFragment {
     private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), ((AppCompatActivity) getActivityComponent().getContext()), bottomNavigationView);
+        BottomNavigationViewHelper.enableNavigation(mContext, getActivity(), bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
     }
 
+      /*
+    ------------------------------------ Firebase ---------------------------------------------
+     */
+
+    /**
+     * Setup the firebase auth object
+     */
+    private void setupFirebaseAuth() {
+        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        myRef = mFirebaseDatabase.getReference();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+
+
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
 }

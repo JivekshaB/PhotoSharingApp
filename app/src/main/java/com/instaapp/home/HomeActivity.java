@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,23 +19,31 @@ import android.widget.RelativeLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.instaapp.BaseActivity;
 import com.instaapp.R;
 import com.instaapp.adapter.MainFeedListAdapter;
 import com.instaapp.login.LoginActivity;
 import com.instaapp.models.Photo;
 import com.instaapp.profile.ViewCommentsFragment;
 import com.instaapp.utils.BottomNavigationViewHelper;
+import com.instaapp.utils.UniversalImageLoader;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class HomeActivity extends BaseActivity implements
+public class HomeActivity extends AppCompatActivity implements
         MainFeedListAdapter.OnLoadMoreItemsListener {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
 
     private static final int ACTIVITY_NUM = 0;
     private static final int HOME_FRAGMENT = 1;
+    private static final int RESULT_ADD_NEW_STORY = 7891;
+    private final static int CAMERA_RQ = 6969;
+    private static final int REQUEST_ADD_NEW_STORY = 8719;
 
+    private Context mContext = HomeActivity.this;
+
+    //firebase
+    private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     //widgets
@@ -68,10 +77,11 @@ public class HomeActivity extends BaseActivity implements
         }, intentFilter);
         setContentView(R.layout.activity_home);
         Log.d(TAG, "onCreate: starting.");
-        mViewPager = findViewById(R.id.viewpager_container);
-        mFrameLayout = findViewById(R.id.container);
-        mRelativeLayout = findViewById(R.id.relLayoutParent);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager_container);
+        mFrameLayout = (FrameLayout) findViewById(R.id.container);
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.relLayoutParent);
         setupFirebaseAuth();
+        initImageLoader();
         setupBottomNavigationView();
         setupViewPager();
 
@@ -121,6 +131,12 @@ public class HomeActivity extends BaseActivity implements
         Log.d(TAG, "onActivityResult: incoming result.");
     }
 
+
+    private void initImageLoader() {
+        UniversalImageLoader universalImageLoader = new UniversalImageLoader(mContext);
+        ImageLoader.getInstance().init(universalImageLoader.getConfig());
+    }
+
     /**
      * Responsible for adding the 3 tabs: Camera, Home, Messages
      */
@@ -146,7 +162,7 @@ public class HomeActivity extends BaseActivity implements
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewEx bottomNavigationViewEx = (BottomNavigationViewEx) findViewById(R.id.bottomNavViewBar);
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationViewEx);
-        BottomNavigationViewHelper.enableNavigation(getActivityContext(), this, bottomNavigationViewEx);
+        BottomNavigationViewHelper.enableNavigation(mContext, this, bottomNavigationViewEx);
         Menu menu = bottomNavigationViewEx.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
@@ -166,7 +182,7 @@ public class HomeActivity extends BaseActivity implements
         Log.d(TAG, "checkCurrentUser: checking if user is logged in.");
 
         if (user == null) {
-            Intent intent = new Intent(getApplicationComponent().getContext(), LoginActivity.class);
+            Intent intent = new Intent(mContext, LoginActivity.class);
             startActivity(intent);
         }
     }
@@ -176,6 +192,8 @@ public class HomeActivity extends BaseActivity implements
      */
     private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+
+        mAuth = FirebaseAuth.getInstance();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -201,16 +219,16 @@ public class HomeActivity extends BaseActivity implements
     @Override
     public void onStart() {
         super.onStart();
-        getFireBaseAuth().addAuthStateListener(mAuthListener);
+        mAuth.addAuthStateListener(mAuthListener);
         mViewPager.setCurrentItem(HOME_FRAGMENT);
-        checkCurrentUser(getFireBaseAuth().getCurrentUser());
+        checkCurrentUser(mAuth.getCurrentUser());
     }
 
     @Override
     public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
-            getFireBaseAuth().removeAuthStateListener(mAuthListener);
+            mAuth.removeAuthStateListener(mAuthListener);
         }
     }
 

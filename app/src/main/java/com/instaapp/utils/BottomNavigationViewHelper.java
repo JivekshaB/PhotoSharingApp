@@ -10,6 +10,7 @@ import android.view.MenuItem;
 
 import com.instaapp.R;
 import com.instaapp.home.HomeActivity;
+import com.instaapp.likes.LikesActivity;
 import com.instaapp.profile.ProfileActivity;
 import com.instaapp.search.SearchActivity;
 import com.instaapp.share.ShareActivity;

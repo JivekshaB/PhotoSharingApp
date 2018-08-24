@@ -2,6 +2,8 @@ package com.instaapp.home;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,15 +13,17 @@ import com.eschao.android.widget.elasticlistview.ElasticListView;
 import com.eschao.android.widget.elasticlistview.LoadFooter;
 import com.eschao.android.widget.elasticlistview.OnLoadListener;
 import com.eschao.android.widget.elasticlistview.OnUpdateListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.adapter.MainFeedListAdapter;
 import com.instaapp.models.Comment;
 import com.instaapp.models.Photo;
+import com.instaapp.models.UserAccountSettings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +36,7 @@ import java.util.Map;
  * Created by jiveksha on 8/7/18.
  */
 
-public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLoadListener {
+public class HomeFragment extends Fragment implements OnUpdateListener, OnLoadListener {
 
     private static final String TAG = HomeFragment.class.getSimpleName();
 
@@ -58,6 +62,8 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
     private ElasticListView mListView;
     private MainFeedListAdapter adapter;
     private int resultsCount = 0;
+    private ArrayList<UserAccountSettings> mUserAccountSettings;
+    private RecyclerView mRecyclerView;
 
 
     @Nullable
@@ -78,6 +84,7 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
                 .getLoadFooter().setLoadAction(LoadFooter.LoadAction.RELEASE_TO_LOAD);
         mListView.setOnUpdateListener(this)
                 .setOnLoadListener(this);
+//        mListView.requestUpdate();
     }
 
 
@@ -92,14 +99,19 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
                 adapter.notifyDataSetChanged();
             }
         }
-
+        if (mUserAccountSettings != null) {
+            mUserAccountSettings.clear();
+        }
         if (mPaginatedPhotos != null) {
             mPaginatedPhotos.clear();
         }
-
+        if (mRecyclerView != null) {
+            mRecyclerView.setAdapter(null);
+        }
         mFollowing = new ArrayList<>();
         mPhotos = new ArrayList<>();
         mPaginatedPhotos = new ArrayList<>();
+        mUserAccountSettings = new ArrayList<>();
     }
 
     /**
@@ -111,11 +123,11 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
 
         clearAll();
         //also add your own id to the list
-        mFollowing.add(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
+        mFollowing.add(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-        Query query = getApplicationComponent().getFirebaseDatabase().getReference()
-                .child(getFragmentContext().getString(R.string.dbname_following))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
+        Query query = FirebaseDatabase.getInstance().getReference()
+                .child(getActivity().getString(R.string.dbname_following))
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -144,8 +156,8 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
 
         for (int i = 0; i < mFollowing.size(); i++) {
             final int count = i;
-            Query query = getApplicationComponent().getFirebaseDatabase().getReference()
-                    .child(getFragmentContext().getString(R.string.dbname_user_photos))
+            Query query = FirebaseDatabase.getInstance().getReference()
+                    .child(getActivity().getString(R.string.dbname_user_photos))
                     .child(mFollowing.get(i))
                     .orderByChild(getString(R.string.field_user_id))
                     .equalTo(mFollowing.get(i));
@@ -220,7 +232,7 @@ public class HomeFragment extends BaseFragment implements OnUpdateListener, OnLo
                     Log.d(TAG, "displayPhotos: adding a photo to paginated list: " + mPhotos.get(i).getPhoto_id());
                 }
 
-                adapter = new MainFeedListAdapter(getFragmentContext(), R.layout.layout_mainfeed_listitem, mPaginatedPhotos, getApplicationComponent().getUniversalImageLoader());
+                adapter = new MainFeedListAdapter(getActivity(), R.layout.layout_mainfeed_listitem, mPaginatedPhotos);
                 mListView.setAdapter(adapter);
 
                 // Notify update is done

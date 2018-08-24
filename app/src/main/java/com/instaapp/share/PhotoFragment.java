@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
-import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.profile.AccountSettingsActivity;
 
@@ -33,7 +33,7 @@ import java.util.Locale;
  * Created by User on 5/28/2017.
  */
 
-public class PhotoFragment extends BaseFragment {
+public class PhotoFragment extends Fragment {
     private static final String TAG = "PhotoFragment";
 
     //constant
@@ -84,8 +84,8 @@ public class PhotoFragment extends BaseFragment {
             });
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        ((AppCompatActivity) getActivityComponent().getContext()).setSupportActionBar(toolbar);
-        ActionBar actionBar = ((AppCompatActivity) getActivityComponent().getContext()).getSupportActionBar();
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
         }
@@ -96,12 +96,16 @@ public class PhotoFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         mCameraView.start();
+        if (null != mCallback)
+            mCameraView.addCallback(mCallback);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mCameraView.stop();
+        if (null != mCallback)
+            mCameraView.removeCallback(mCallback);
 
     }
 
@@ -136,7 +140,11 @@ public class PhotoFragment extends BaseFragment {
 
 
     private boolean isRootTask() {
-        return ((ShareActivity) getActivityComponent().getContext()).getTask() == 0;
+        if (((ShareActivity) getActivity()).getTask() == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private CameraView.Callback mCallback
@@ -158,7 +166,7 @@ public class PhotoFragment extends BaseFragment {
 
             Log.d(TAG, "onActivityResult: done taking a photo.");
             Log.d(TAG, "onActivityResult: attempting to navigate to final share screen.");
-            File destination;
+            File destination = null;
             try {
 
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
@@ -177,31 +185,35 @@ public class PhotoFragment extends BaseFragment {
                         cameraView.stop();
                     try {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
-                        Intent intent = new Intent(getApplicationComponent().getContext(), NextActivity.class);
+                        Intent intent = new Intent(getActivity(), NextActivity.class);
                         intent.putExtra(getString(R.string.selected_bitmap), destination.getAbsolutePath());
-                        (getActivityComponent().getContext()).startActivity(intent);
+                        getActivity().startActivity(intent);
                     } catch (NullPointerException e) {
                         Log.d(TAG, "onActivityResult: NullPointerException: " + e.getMessage());
                     }
                 } else {
                     try {
                         Log.d(TAG, "onActivityResult: received new bitmap from camera: " + destination.getAbsolutePath());
-                        Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
+                        Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
                         intent.putExtra(getString(R.string.selected_bitmap), destination.getAbsolutePath());
                         intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
                         startActivity(intent);
+                        getActivity().finish();
                     } catch (NullPointerException e) {
                         Log.d(TAG, "onActivityResult: NullPointerException: " + e.getMessage());
                     }
                 }
 
-                ((AppCompatActivity)getActivityComponent().getContext()).finish();
+                getActivity().finish();
 
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, "onPictureTaken: while creation error...");
                 Toast.makeText(getContext(), "Unable to take picture. Please try again later", Toast.LENGTH_LONG).show();
             }
+
+            //bitmap = (Bitmap) ImageManager.getBitmap(data);
+
         }
 
     };

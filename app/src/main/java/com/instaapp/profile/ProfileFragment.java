@@ -3,8 +3,9 @@ package com.instaapp.profile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,12 +20,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.adapter.GridImageAdapter;
 import com.instaapp.models.Comment;
@@ -33,6 +35,7 @@ import com.instaapp.models.Photo;
 import com.instaapp.models.UserAccountSettings;
 import com.instaapp.models.UserSettings;
 import com.instaapp.utils.BottomNavigationViewHelper;
+import com.instaapp.utils.FirebaseMethods;
 import com.instaapp.utils.UniversalImageLoader;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
@@ -48,7 +51,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by User on 6/29/2017.
  */
 
-public class ProfileFragment extends BaseFragment {
+public class ProfileFragment extends Fragment {
 
     private static final String TAG = ProfileFragment.class.getSimpleName();
 
@@ -63,8 +66,11 @@ public class ProfileFragment extends BaseFragment {
     private static final int NUM_GRID_COLUMNS = 3;
 
     //firebase
+    private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
+    private FirebaseMethods mFirebaseMethods;
 
 
     //widgets
@@ -75,6 +81,7 @@ public class ProfileFragment extends BaseFragment {
     private Toolbar toolbar;
     private ImageView profileMenu;
     private BottomNavigationViewEx bottomNavigationView;
+    private Context mContext;
 
 
     //vars
@@ -100,6 +107,8 @@ public class ProfileFragment extends BaseFragment {
         toolbar = view.findViewById(R.id.profileToolBar);
         profileMenu = view.findViewById(R.id.profileMenu);
         bottomNavigationView = view.findViewById(R.id.bottomNavViewBar);
+        mContext = getActivity();
+        mFirebaseMethods = new FirebaseMethods(getActivity());
         Log.d(TAG, "onCreateView: stared.");
 
 
@@ -117,8 +126,8 @@ public class ProfileFragment extends BaseFragment {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating to " + getString(R.string.edit_profile_fragment));
-                Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
+                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
+                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
                 intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
                 startActivity(intent);
                 getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -142,10 +151,10 @@ public class ProfileFragment extends BaseFragment {
         Log.d(TAG, "setupGridView: Setting up image grid.");
         if (isAdded()) {
             final ArrayList<Photo> photos = new ArrayList<>();
-            DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
             Query query = reference
                     .child(getString(R.string.dbname_user_photos))
-                    .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -223,9 +232,9 @@ public class ProfileFragment extends BaseFragment {
     private void getFollowersCount() {
         mFollowersCount = 0;
 
-        DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference.child(getString(R.string.dbname_followers))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -246,9 +255,9 @@ public class ProfileFragment extends BaseFragment {
     private void getFollowingCount() {
         mFollowingCount = 0;
 
-        DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference.child(getString(R.string.dbname_following))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -269,9 +278,9 @@ public class ProfileFragment extends BaseFragment {
     private void getPostsCount() {
         mPostsCount = 0;
 
-        DatabaseReference reference = getApplicationComponent().getFirebaseDatabase().getReference();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference.child(getString(R.string.dbname_user_photos))
-                .child(getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid());
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -292,14 +301,27 @@ public class ProfileFragment extends BaseFragment {
     }
 
     private void setProfileWidgets(UserSettings userSettings) {
+        // Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
+        //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
+
+
+        //User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
 
-        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(),settings.getProfile_photo(), mProfilePhoto, null, "");
+        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
+
+//        Glide.with(getActivity())
+//                .load(settings.getProfile_photo())
+//                .into(mProfilePhoto);
 
         mDisplayName.setText(settings.getDisplay_name());
         mUsername.setText(settings.getUsername());
         mWebsite.setText(settings.getWebsite());
         mDescription.setText(settings.getDescription());
+        //   mPosts.setText(String.valueOf(settings.getPosts()));
+        //   mFollowing.setText(String.valueOf(settings.getFollowing()));
+        //   mFollowers.setText(String.valueOf(settings.getFollowers()));
+
         mProgressBar.setVisibility(View.GONE);
     }
 
@@ -309,13 +331,13 @@ public class ProfileFragment extends BaseFragment {
      */
     private void setupToolbar() {
 
-        ((AppCompatActivity) getActivityComponent().getContext()).setSupportActionBar(toolbar);
+        ((ProfileActivity) getActivity()).setSupportActionBar(toolbar);
 
         profileMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating to account settings.");
-                Intent intent = new Intent(getApplicationComponent().getContext(), AccountSettingsActivity.class);
+                Intent intent = new Intent(mContext, AccountSettingsActivity.class);
                 startActivity(intent);
                 getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
@@ -328,7 +350,7 @@ public class ProfileFragment extends BaseFragment {
     private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
-        BottomNavigationViewHelper.enableNavigation(getFragmentContext(), getActivity(), bottomNavigationView);
+        BottomNavigationViewHelper.enableNavigation(mContext, getActivity(), bottomNavigationView);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
@@ -344,14 +366,34 @@ public class ProfileFragment extends BaseFragment {
     private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
-        myRef = getApplicationComponent().getFirebaseDatabase().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        myRef = mFirebaseDatabase.getReference();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 //retrieve user information from the database
-                setProfileWidgets(getApplicationComponent().getFirebaseMethods().getUserSettings(dataSnapshot));
+                setProfileWidgets(mFirebaseMethods.getUserSettings(dataSnapshot));
 
             }
 
@@ -362,4 +404,18 @@ public class ProfileFragment extends BaseFragment {
         });
     }
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+//        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+       /* if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }*/
+    }
 }

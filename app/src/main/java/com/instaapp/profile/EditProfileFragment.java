@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,13 +27,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.dialogs.ConfirmPasswordDialog;
 import com.instaapp.models.User;
 import com.instaapp.models.UserAccountSettings;
 import com.instaapp.models.UserSettings;
 import com.instaapp.share.ShareActivity;
+import com.instaapp.utils.FirebaseMethods;
 import com.instaapp.utils.UniversalImageLoader;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -43,15 +43,18 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by User on 6/4/2017.
  */
 
-public class EditProfileFragment extends BaseFragment implements
+public class EditProfileFragment extends Fragment implements
         ConfirmPasswordDialog.OnConfirmPasswordListener {
 
     private static final String TAG = EditProfileFragment.class.getSimpleName();
 
 
     //firebase
+    private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
+    private FirebaseMethods mFirebaseMethods;
     private String userID;
 
 
@@ -69,28 +72,30 @@ public class EditProfileFragment extends BaseFragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_editprofile, container, false);
-        mProfilePhoto = view.findViewById(R.id.profile_photo);
-        mDisplayName = view.findViewById(R.id.display_name);
-        mUsername = view.findViewById(R.id.username);
-        mWebsite = view.findViewById(R.id.website);
-        mDescription = view.findViewById(R.id.description);
-        mEmail = view.findViewById(R.id.email);
-        mPhoneNumber = view.findViewById(R.id.phoneNumber);
-        mChangeProfilePhoto = view.findViewById(R.id.changeProfilePhoto);
+        mProfilePhoto = (CircleImageView) view.findViewById(R.id.profile_photo);
+        mDisplayName = (EditText) view.findViewById(R.id.display_name);
+        mUsername = (EditText) view.findViewById(R.id.username);
+        mWebsite = (EditText) view.findViewById(R.id.website);
+        mDescription = (EditText) view.findViewById(R.id.description);
+        mEmail = (EditText) view.findViewById(R.id.email);
+        mPhoneNumber = (EditText) view.findViewById(R.id.phoneNumber);
+        mChangeProfilePhoto = (TextView) view.findViewById(R.id.changeProfilePhoto);
+        mFirebaseMethods = new FirebaseMethods(getActivity());
 
-        //Set up Firebase AUth
+
         setupFirebaseAuth();
+
         //back arrow for navigating back to "ProfileActivity"
-        ImageView backArrow = view.findViewById(R.id.backArrow);
+        ImageView backArrow = (ImageView) view.findViewById(R.id.backArrow);
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: navigating back to ProfileActivity");
-                ((AppCompatActivity)getActivityComponent().getContext()).finish();
+                getActivity().finish();
             }
         });
 
-        ImageView checkmark = view.findViewById(R.id.saveChanges);
+        ImageView checkmark = (ImageView) view.findViewById(R.id.saveChanges);
         checkmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,19 +146,19 @@ public class EditProfileFragment extends BaseFragment implements
          */
         if (!mUserSettings.getSettings().getDisplay_name().equals(displayName)) {
             //update displayname
-            getApplicationComponent().getFirebaseMethods().updateUserAccountSettings(displayName, null, null, 0);
+            mFirebaseMethods.updateUserAccountSettings(displayName, null, null, 0);
         }
         if (!mUserSettings.getSettings().getWebsite().equals(website)) {
             //update website
-            getApplicationComponent().getFirebaseMethods().updateUserAccountSettings(null, website, null, 0);
+            mFirebaseMethods.updateUserAccountSettings(null, website, null, 0);
         }
         if (!mUserSettings.getSettings().getDescription().equals(description)) {
             //update description
-            getApplicationComponent().getFirebaseMethods().updateUserAccountSettings(null, null, description, 0);
+            mFirebaseMethods.updateUserAccountSettings(null, null, description, 0);
         }
         if (mUserSettings.getUser().getPhone_number() != phoneNumber) {
             //update phoneNumber
-            getApplicationComponent().getFirebaseMethods().updateUserAccountSettings(null, null, null, phoneNumber);
+            mFirebaseMethods.updateUserAccountSettings(null, null, null, phoneNumber);
         }
     }
 
@@ -176,14 +181,14 @@ public class EditProfileFragment extends BaseFragment implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
                     //add the username
-                    getApplicationComponent().getFirebaseMethods().updateUsername(username);
-                    Toast.makeText(getFragmentContext(), "saved username.", Toast.LENGTH_SHORT).show();
+                    mFirebaseMethods.updateUsername(username);
+                    Toast.makeText(getActivity(), "saved username.", Toast.LENGTH_SHORT).show();
 
                 }
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                     if (singleSnapshot.exists()) {
                         Log.d(TAG, "checkIfUsernameExists: FOUND A MATCH: " + singleSnapshot.getValue(User.class).getUsername());
-                        Toast.makeText(getFragmentContext(), "That username already exists.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "That username already exists.", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -203,7 +208,7 @@ public class EditProfileFragment extends BaseFragment implements
         mUserSettings = userSettings;
         //User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
-        UniversalImageLoader.setImage(getApplicationComponent().getUniversalImageLoader(),settings.getProfile_photo(), mProfilePhoto, null, "");
+        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
         mDisplayName.setText(settings.getDisplay_name());
         mUsername.setText(settings.getUsername());
         mWebsite.setText(settings.getWebsite());
@@ -215,10 +220,10 @@ public class EditProfileFragment extends BaseFragment implements
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: changing profile photo");
-                Intent intent = new Intent(getApplicationComponent().getContext(), ShareActivity.class);
+                Intent intent = new Intent(getActivity(), ShareActivity.class);
                 intent.putExtra(getString(R.string.gallery_fragment), false);
-                (getActivityComponent().getContext()).startActivity(intent);
-                ((AppCompatActivity)getActivityComponent().getContext()).finish();
+                getActivity().startActivity(intent);
+                getActivity().finish();
             }
         });
     }
@@ -232,10 +237,10 @@ public class EditProfileFragment extends BaseFragment implements
         // email and password credentials but there are multiple possible providers,
         // such as GoogleAuthProvider or FacebookAuthProvider.
         AuthCredential credential = EmailAuthProvider
-                .getCredential(getApplicationComponent().getFirebaseAuth().getCurrentUser().getEmail(), password);
+                .getCredential(mAuth.getCurrentUser().getEmail(), password);
 
         ///////////////////// Prompt the user to re-provide their sign-in credentials
-        getApplicationComponent().getFirebaseAuth().getCurrentUser().reauthenticate(credential)
+        mAuth.getCurrentUser().reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -243,26 +248,26 @@ public class EditProfileFragment extends BaseFragment implements
                             Log.d(TAG, "User re-authenticated.");
 
                             ///////////////////////check to see if the email is not already present in the database
-                            getApplicationComponent().getFirebaseAuth().fetchProvidersForEmail(mEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<ProviderQueryResult>() {
+                            mAuth.fetchProvidersForEmail(mEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<ProviderQueryResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<ProviderQueryResult> task) {
                                     if (task.isSuccessful()) {
                                         try {
                                             if (task.getResult().getProviders().size() == 1) {
                                                 Log.d(TAG, "onComplete: that email is already in use.");
-                                                Toast.makeText(getFragmentContext(), "That email is already in use", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getActivity(), "That email is already in use", Toast.LENGTH_SHORT).show();
                                             } else {
                                                 Log.d(TAG, "onComplete: That email is available.");
 
                                                 //////////////////////the email is available so update it
-                                                getApplicationComponent().getFirebaseAuth().getCurrentUser().updateEmail(mEmail.getText().toString())
+                                                mAuth.getCurrentUser().updateEmail(mEmail.getText().toString())
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                 if (task.isSuccessful()) {
                                                                     Log.d(TAG, "User email address updated.");
-                                                                    Toast.makeText(getFragmentContext(), "email updated", Toast.LENGTH_SHORT).show();
-                                                                    getApplicationComponent().getFirebaseMethods().updateEmail(mEmail.getText().toString());
+                                                                    Toast.makeText(getActivity(), "email updated", Toast.LENGTH_SHORT).show();
+                                                                    mFirebaseMethods.updateEmail(mEmail.getText().toString());
                                                                 }
                                                             }
                                                         });
@@ -295,8 +300,10 @@ public class EditProfileFragment extends BaseFragment implements
     private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
-        myRef = getApplicationComponent().getFirebaseDatabase().getReference();
-        userID = getApplicationComponent().getFirebaseAuth().getCurrentUser().getUid();
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        myRef = mFirebaseDatabase.getReference();
+        userID = mAuth.getCurrentUser().getUid();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -321,7 +328,7 @@ public class EditProfileFragment extends BaseFragment implements
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 //retrieve user information from the database
-                setProfileWidgets(getApplicationComponent().getFirebaseMethods().getUserSettings(dataSnapshot));
+                setProfileWidgets(mFirebaseMethods.getUserSettings(dataSnapshot));
 
                 //retrieve images for the user in question
 
@@ -338,14 +345,14 @@ public class EditProfileFragment extends BaseFragment implements
     @Override
     public void onStart() {
         super.onStart();
-        getApplicationComponent().getFirebaseAuth().addAuthStateListener(mAuthListener);
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
-            getApplicationComponent().getFirebaseAuth().removeAuthStateListener(mAuthListener);
+            mAuth.removeAuthStateListener(mAuthListener);
         }
     }
 

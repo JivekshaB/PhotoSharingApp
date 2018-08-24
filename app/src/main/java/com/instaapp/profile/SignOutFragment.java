@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.instaapp.BaseFragment;
 import com.instaapp.R;
 import com.instaapp.login.LoginActivity;
 
@@ -24,10 +23,12 @@ import com.instaapp.login.LoginActivity;
  * Created by User on 6/4/2017.
  */
 
-public class SignOutFragment extends BaseFragment {
+public class SignOutFragment extends Fragment {
 
     private static final String TAG = "SignOutFragment";
 
+    //firebase
+    private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     private ProgressBar mProgressBar;
@@ -37,10 +38,10 @@ public class SignOutFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_signout, container, false);
-        tvSignout = view.findViewById(R.id.tvConfirmSignout);
-        mProgressBar = view.findViewById(R.id.progressBar);
-        tvSigningOut = view.findViewById(R.id.tvSigningOut);
-        Button btnConfirmSignout = view.findViewById(R.id.btnConfirmSignout);
+        tvSignout = (TextView) view.findViewById(R.id.tvConfirmSignout);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        tvSigningOut = (TextView) view.findViewById(R.id.tvSigningOut);
+        Button btnConfirmSignout = (Button) view.findViewById(R.id.btnConfirmSignout);
 
         mProgressBar.setVisibility(View.GONE);
         tvSigningOut.setVisibility(View.GONE);
@@ -54,7 +55,7 @@ public class SignOutFragment extends BaseFragment {
                 mProgressBar.setVisibility(View.VISIBLE);
                 tvSigningOut.setVisibility(View.VISIBLE);
 
-                getApplicationComponent().getFirebaseAuth().signOut();
+                mAuth.signOut();
             }
         });
 
@@ -72,6 +73,8 @@ public class SignOutFragment extends BaseFragment {
     private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
+        mAuth = FirebaseAuth.getInstance();
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -85,11 +88,11 @@ public class SignOutFragment extends BaseFragment {
                     Log.d(TAG, "onAuthStateChanged:signed_out");
 
                     Log.d(TAG, "onAuthStateChanged: navigating back to login screen.");
-                    Intent intent = new Intent(getApplicationComponent().getContext(), LoginActivity.class);
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
                     intent.putExtra(getString(R.string.from_signup), true);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
-                    ((AppCompatActivity)getActivityComponent().getContext()).finish();
+                    getActivity().finish();
                 }
             }
         };
@@ -98,14 +101,14 @@ public class SignOutFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        getApplicationComponent().getFirebaseAuth().addAuthStateListener(mAuthListener);
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
-            getApplicationComponent().getFirebaseAuth().removeAuthStateListener(mAuthListener);
+            mAuth.removeAuthStateListener(mAuthListener);
         }
     }
 }

@@ -1,9 +1,11 @@
 package com.instaapp.profile;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,10 +16,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import com.instaapp.BaseActivity;
 import com.instaapp.R;
 import com.instaapp.adapter.SectionsStatePagerAdapter;
 import com.instaapp.utils.BottomNavigationViewHelper;
+import com.instaapp.utils.FirebaseMethods;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
@@ -26,12 +28,14 @@ import java.util.ArrayList;
  * Created by jiveksha on 8/9/18.
  */
 
-public class AccountSettingsActivity extends BaseActivity {
+public class AccountSettingsActivity extends AppCompatActivity {
 
 
     private static final String TAG = AccountSettingsActivity.class.getSimpleName();
 
     private static final int ACTIVITY_NUM = 3;
+
+    private Context mContext = AccountSettingsActivity.this;
 
     public SectionsStatePagerAdapter mSectionsStatePagerAdapter;
     private ViewPager mViewPager;
@@ -75,11 +79,13 @@ public class AccountSettingsActivity extends BaseActivity {
 
                 if (intent.hasExtra(getString(R.string.selected_image))) {
                     //set the new profile picture
-                    getFirebaseMethods().uploadNewPhoto(getString(R.string.profile_photo), null, 0,
+                    FirebaseMethods firebaseMethods = new FirebaseMethods(AccountSettingsActivity.this);
+                    firebaseMethods.uploadNewPhoto(getString(R.string.profile_photo), null, 0,
                             intent.getStringExtra(getString(R.string.selected_image)), null);
                 } else if (intent.hasExtra(getString(R.string.selected_bitmap))) {
                     //set the new profile picture
-                    getFirebaseMethods().uploadNewPhoto(getString(R.string.profile_photo), null, 0,
+                    FirebaseMethods firebaseMethods = new FirebaseMethods(AccountSettingsActivity.this);
+                    firebaseMethods.uploadNewPhoto(getString(R.string.profile_photo), null, 0,
                             intent.getStringExtra(getString(R.string.selected_bitmap)), null);
                 }
 
@@ -113,9 +119,9 @@ public class AccountSettingsActivity extends BaseActivity {
 
         ArrayList<String> options = new ArrayList<>();
         options.add(getString(R.string.edit_profile_fragment)); //fragment 0
-        options.add(getString(R.string.sign_out_fragment)); //fragment 1
+        options.add(getString(R.string.sign_out_fragment)); //fragement 1
 
-        ArrayAdapter adapter = new ArrayAdapter(getActivityContext(), android.R.layout.simple_list_item_1, options);
+        ArrayAdapter adapter = new ArrayAdapter(mContext, android.R.layout.simple_list_item_1, options);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -135,7 +141,7 @@ public class AccountSettingsActivity extends BaseActivity {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewEx bottomNavigationViewEx = (BottomNavigationViewEx) findViewById(R.id.bottomNavViewBar);
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationViewEx);
-        BottomNavigationViewHelper.enableNavigation(getActivityContext(), this, bottomNavigationViewEx);
+        BottomNavigationViewHelper.enableNavigation(mContext, this, bottomNavigationViewEx);
         Menu menu = bottomNavigationViewEx.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
