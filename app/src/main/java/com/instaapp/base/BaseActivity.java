@@ -81,7 +81,7 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends ViewMode
         super.onCreate(savedInstanceState);
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction("com.package.ACTION_LOGOUT");
-        BroadcastReceiver mLogoutReceiver = new BroadcastReceiver() {
+        mLogoutReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "onReceive: Logout in progress");

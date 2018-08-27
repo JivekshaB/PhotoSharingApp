@@ -55,20 +55,6 @@ public class ApplicationModule {
         return FirebaseAuth.getInstance();
     }
 
-    /**
-     * Provide firebase auth state listener for all auth related flows
-     *
-     * @return {@link FirebaseAuth.AuthStateListener}
-     */
-    @Provides
-    FirebaseAuth.AuthStateListener providesAuthStateListener() {
-        return new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
-            }
-        };
-    }
 
     /**
      * Provides firebase database

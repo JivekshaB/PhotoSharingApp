@@ -87,7 +87,7 @@ public abstract class BaseViewModel<N> extends ViewModel implements FirebaseAuth
     /**
      * Setter method for FirebaseMethod()
      */
-    public void setFirebaseMethods(Context context) {
+    private void setFirebaseMethods(Context context) {
         mFirebaseMethods = new FirebaseMethods(context, mFirebaseAuth, mFirebaseDatabase, mFirebaseStorage.getReference());
     }
 

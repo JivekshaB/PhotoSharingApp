@@ -14,7 +14,7 @@ import android.widget.ImageView;
 
 public class LikeToggle {
 
-    private static final String TAG = "LikeToggle";
+    private static final String TAG = LikeToggle.class.getSimpleName();
 
     private static final DecelerateInterpolator DECCELERATE_INTERPOLATOR = new DecelerateInterpolator();
     private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
